@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "3C Studio"
+version = "1.0.0"
+id = "artifacts/3c-studio"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 24679
+
+[services.development]
+run = "pnpm --filter @workspace/3c-studio run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/3c-studio", "run", "build" ]
+publicDir = "artifacts/3c-studio/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "24679"
+BASE_PATH = "/"

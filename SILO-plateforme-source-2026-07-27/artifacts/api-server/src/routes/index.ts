@@ -1,0 +1,40 @@
+import { Router, type IRouter } from "express";
+import healthRouter from "./health";
+import contactsRouter from "./contacts";
+import projectsRouter from "./projects";
+import deliverablesRouter from "./deliverables";
+import quotesRouter from "./quotes";
+import dashboardRouter from "./dashboard";
+import commentsRouter from "./comments";
+import partnerRouter from "./partner";
+import financeRouter from "./finance";
+import featureFlagsRouter from "./feature-flags";
+import feedRouter from "./feed";
+import commRouter from "./comm";
+import twilioWebhooksRouter from "./twilio-webhooks";
+import partnersRouter from "./partners";
+import usersRouter from "./users";
+import reviewsRouter from "./reviews";
+import projectFilesRouter from "./project-files";
+
+const router: IRouter = Router();
+
+router.use(healthRouter);
+router.use(contactsRouter);
+router.use(projectsRouter);
+router.use(deliverablesRouter);
+router.use(quotesRouter);
+router.use(dashboardRouter);
+router.use(commentsRouter);
+router.use(partnerRouter);
+router.use(financeRouter);
+router.use(featureFlagsRouter);
+router.use(feedRouter);
+router.use(commRouter);
+router.use(twilioWebhooksRouter);
+router.use(partnersRouter);
+router.use(usersRouter);
+router.use(reviewsRouter);
+router.use(projectFilesRouter);
+
+export default router;

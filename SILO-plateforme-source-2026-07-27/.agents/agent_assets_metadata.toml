@@ -1,0 +1,26 @@
+uploads = []
+outputs = []
+
+[[generated]]
+id = "RcA2FnlXVH6v0Xvtj1n7K"
+uri = "file://artifacts/3c-studio-video/public/images/wedding.png"
+type = "image"
+title = "cinematic wedding romance"
+
+[[generated]]
+id = "7UMBMy3CfLXoPQQfur7cV"
+uri = "file://artifacts/3c-studio-video/public/images/artist.png"
+type = "image"
+title = "music video energy"
+
+[[generated]]
+id = "-pDYrf0L36Kwtc0oo9Re1"
+uri = "file://artifacts/3c-studio-video/public/images/corporate.png"
+type = "image"
+title = "corporate filming crew"
+
+[[generated]]
+id = "2kt1Z9lb_DeeZAjxGW70H"
+uri = "file://artifacts/3c-studio-video/public/images/texture.png"
+type = "image"
+title = "cinematic dark texture"

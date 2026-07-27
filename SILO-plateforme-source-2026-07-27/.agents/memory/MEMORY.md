@@ -1,0 +1,13 @@
+- [Clerk dev proxy](clerk-dev-proxy.md) — proxyUrl must be VITE_CLERK_PROXY_URL (empty in dev), never hardcoded /api/__clerk, or Clerk JS 404s in dev.
+- [Clerk + Supabase RLS](clerk-supabase-rls.md) — Clerk auth means Supabase auth.uid() is null; RLS blocks anon-key chat reads/realtime until Clerk→Supabase JWT + participant policies added.
+- [3C Studio CRM/Tally/Airtable](3cs-crm-tally-airtable.md) — Q1 = Service recherché (sans prix), Q2 = Profil client ; prix uniquement dans les sections conditionnelles Tally.
+- [Testing role-gated Clerk pages](clerk-role-testing.md) — set publicMetadata.role via api.clerk.com with CLERK_SECRET_KEY on a fixed test user, then sign in as that exact email in runTest.
+- [Silo spec rules](silo-spec-rules.md) — répartition 70/20/10 sur HT (jamais 30/70) ; fonctionnalités sensibles désactivées par défaut, activation Admin seulement ; CDC /tmp obsolète sur ces points.
+- [Clerk Express req.auth](clerk-express-req-auth.md) — req.auth is a branded function in @clerk/express v2+; use getAuth(req)/getAuthInfo(req), never req.auth.userId; Orval date bodies are Date, Drizzle date columns want strings.
+- [Fresh task-env DB is empty](fresh-env-db.md) — isolated envs start with no tables; run db push (+ seed) before DB-backed e2e tests or inserts 500.
+- [Clerk Express auth access](clerk-express-getauth.md) — use getAuth(req), never req.auth?.…; session token may lack publicMetadata.role, fall back to Clerk Users API.
+- [Clerk requireAuth redirect](clerk-auth-redirect.md) — requireAuth() retourne 302 (pas 401) en dev ; fetch() suit les redirects silencieusement → utiliser redirect:'manual' dans les tests e2e.
+- [API ID types number→string](api-id-types.md) — IDs ressources API (projects, transactions) sont number côté serveur, les composants React attendent string ; toujours convertir via String().
+- [Orval queryKey required v5](orval-querykey.md) — hooks Orval (ex: useListDeliverables) exigent queryKey dans les options query React Query v5 ; utiliser getList…QueryKey().
+- [Typography system silo](typography-system.md) — font-serif (Playfair Display) uniquement sur H1 éditoriaux Home + Portfolio ; tout le reste (nav, h2/h3, cartes, CTA, dashboards) = Inter.
+- [Clerk dark theme opacity trap](clerk-dark-opacity.md) — baseTheme dark applique une opacité interne sur headerTitle/headerSubtitle ; corriger avec !opacity-100 dans elements + variables complètes (colorInputText, colorTextOnPrimaryBackground). Localisation : @clerk/localizations frFR comme base, surcharger les titres SILO.

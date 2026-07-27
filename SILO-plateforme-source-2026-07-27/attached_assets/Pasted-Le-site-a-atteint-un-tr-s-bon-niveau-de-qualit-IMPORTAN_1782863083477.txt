@@ -1,0 +1,209 @@
+Le site a atteint un très bon niveau de qualité.
+
+IMPORTANT
+
+Avant toute modification :
+
+• Ne supprime aucun composant.
+• Ne modifie aucune logique métier.
+• Ne change aucun workflow existant.
+• Ne casse aucune fonctionnalité.
+• Ne modifie aucune route.
+• Ne change pas la structure de la base de données.
+• Ne modifie pas les formulaires.
+• Ne modifie pas les intégrations.
+• Ne modifie pas le responsive.
+• Ne change pas les performances.
+
+Le site doit continuer à fonctionner exactement comme aujourd'hui.
+
+Les modifications demandées sont UNIQUEMENT des améliorations.
+
+==================================================
+1. AMÉLIORER LA COHÉRENCE VISUELLE
+==================================================
+
+Je souhaite uniformiser toute l'identité graphique.
+
+Je veux conserver le style actuel mais le rendre plus premium.
+
+Uniformiser partout :
+
+• les espacements
+• les marges
+• les rayons de bordure
+• les ombres
+• les tailles de boutons
+• les hauteurs des cartes
+• les badges
+• les icônes
+• les couleurs secondaires
+• les animations
+
+L'objectif est que toutes les pages donnent la sensation d'avoir été conçues comme un seul produit.
+
+==================================================
+2. HARMONISER LES CARTES
+==================================================
+
+Aujourd'hui certaines cartes ont :
+
+• des hauteurs différentes
+• des boutons placés différemment
+• des espacements variables
+
+Je souhaite que toutes les cartes utilisent le même composant.
+
+Même hauteur.
+
+Même padding.
+
+Même typographie.
+
+Même positionnement des boutons.
+
+Même style.
+
+==================================================
+3. AMÉLIORER LA PAGE D'ACCUEIL
+==================================================
+
+Conserver la structure actuelle.
+
+Mais rendre le Hero plus vivant.
+
+Ajouter subtilement :
+
+• micro animations
+• léger mouvement
+• transitions élégantes
+• profondeur
+
+Sans surcharger.
+
+Je souhaite une sensation proche de Stripe, Framer ou Linear.
+
+==================================================
+4. AJOUTER DE LA PREUVE SOCIALE
+==================================================
+
+Ajouter une section dédiée avec :
+
+• témoignages clients
+• logos partenaires
+• statistiques
+• réalisations
+
+Le tout parfaitement intégré au design actuel.
+
+==================================================
+5. AJOUTER UNE PAGE "NOS RÉALISATIONS"
+==================================================
+
+Créer une vraie galerie filtrable.
+
+Catégories :
+
+• Mariage
+• Clip
+• Corporate
+• Réseaux sociaux
+
+Chaque projet doit contenir :
+
+• miniature
+• titre
+• catégorie
+• description
+• vidéo
+• technologies
+• client
+• année
+
+Prévoir une structure facilement administrable.
+
+==================================================
+6. CRÉER UN ESPACE CLIENT
+==================================================
+
+Ajouter un portail client sécurisé.
+
+Le client doit pouvoir :
+
+• suivre sa commande
+• voir l'avancement
+• télécharger les livrables
+• laisser des commentaires
+• demander des corrections
+• consulter ses devis
+• consulter ses factures
+• signer un devis
+• retrouver son historique
+
+Ce portail devra être indépendant du site vitrine.
+
+==================================================
+7. CRÉER UN ESPACE AGENCES PARTENAIRES
+==================================================
+
+Ajouter un second portail.
+
+Destiné uniquement aux prestataires.
+
+Ils doivent pouvoir :
+
+• recevoir leurs missions
+• consulter le brief
+• télécharger les fichiers
+• envoyer les livrables
+• échanger avec le chef de projet
+• suivre leur notation
+• consulter leur historique
+
+Le client final ne doit jamais voir cet espace.
+
+3C Studio reste l'intermédiaire entre le client et les partenaires.
+
+==================================================
+8. PRÉPARER LE PROJET POUR SA CROISSANCE
+==================================================
+
+Le code doit devenir modulaire.
+
+Créer une architecture permettant d'ajouter facilement :
+
+• CRM
+• ERP
+• IA
+• Google Drive
+• Airtable
+• Slack
+• signature électronique
+• notifications
+• paiements
+• calendrier
+• automatisations
+
+Sans devoir réécrire les composants existants.
+
+==================================================
+9. QUALITÉ DU CODE
+==================================================
+
+Refactoriser uniquement lorsque cela améliore :
+
+• la lisibilité
+• la réutilisabilité
+• la maintenance
+
+Ne jamais modifier le comportement actuel.
+
+==================================================
+10. OBJECTIF FINAL
+==================================================
+
+Je souhaite transformer ce projet en une véritable plateforme SaaS haut de gamme.
+
+Le résultat doit donner l'impression d'un logiciel professionnel comparable à Notion, Stripe ou Framer, tout en conservant l'identité graphique de 3C Studio.
+
+Chaque évolution doit s'intégrer naturellement au projet existant, sans régression.

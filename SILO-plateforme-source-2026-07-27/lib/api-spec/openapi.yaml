@@ -1,0 +1,2252 @@
+openapi: 3.1.0
+info:
+  # Do not change the title, if the title changes, the import paths will be broken
+  title: Api
+  version: 0.1.0
+  description: 3C Studio API specification
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: contact
+    description: Public contact form
+  - name: projects
+    description: Client projects
+  - name: quotes
+    description: Quote requests
+  - name: deliverables
+    description: Project file deliverables
+  - name: dashboard
+    description: Dashboard stats and summaries
+  - name: comments
+    description: Project comments and correction requests
+  - name: partner
+    description: Partner portal missions
+  - name: finance
+    description: Transactions, split 70/20/10 and FRP (server-enforced)
+  - name: feature-flags
+    description: Activatable features (CDC §14) with server-side role enforcement
+  - name: feed
+    description: Unified project feed with server-enforced role visibility matrix
+  - name: comm
+    description: Client↔Agency direct communication rules (server-enforced)
+  - name: users
+    description: Administration of authenticated users
+
+paths:
+  /users:
+    get:
+      operationId: listUsers
+      tags: [users]
+      summary: List Clerk users with scoped project counts (admin)
+      responses:
+        "200":
+          description: List of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PlatformUser"
+
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      description: Returns server health status
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  /contact:
+    post:
+      operationId: submitContact
+      tags: [contact]
+      summary: Submit a contact/inquiry form
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ContactInput"
+      responses:
+        "201":
+          description: Contact submission received
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ContactSubmission"
+        "400":
+          description: Validation error
+
+  /projects:
+    get:
+      operationId: listProjects
+      tags: [projects]
+      summary: List projects
+      description: Admins see all projects; clients see their own
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+        - name: type
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of projects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Project"
+    post:
+      operationId: createProject
+      tags: [projects]
+      summary: Create a project (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProjectInput"
+      responses:
+        "201":
+          description: Project created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Project"
+
+  /projects/{id}:
+    get:
+      operationId: getProject
+      tags: [projects]
+      summary: Get a project by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Project details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Project"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateProject
+      tags: [projects]
+      summary: Update a project
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProjectUpdate"
+      responses:
+        "200":
+          description: Updated project
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Project"
+    delete:
+      operationId: deleteProject
+      tags: [projects]
+      summary: Delete a project (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /projects/{id}/deliverables:
+    get:
+      operationId: listDeliverables
+      tags: [deliverables]
+      summary: List deliverables for a project
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of deliverables
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Deliverable"
+    post:
+      operationId: addDeliverable
+      tags: [deliverables]
+      summary: Add a deliverable to a project (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DeliverableInput"
+      responses:
+        "201":
+          description: Deliverable added
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Deliverable"
+
+  /projects/{id}/files:
+    get:
+      operationId: listProjectFiles
+      tags: [deliverables]
+      summary: List private project resources visible to a project member
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Project files
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ProjectFile"
+    post:
+      operationId: addProjectFile
+      tags: [deliverables]
+      summary: Register an uploaded private project resource
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProjectFileInput"
+      responses:
+        "201":
+          description: Project file registered
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProjectFile"
+        "403":
+          description: Forbidden
+
+  /deliverables/{id}:
+    patch:
+      operationId: reviewDeliverable
+      tags: [deliverables]
+      summary: Review a deliverable
+      description: Approves a deliverable for client access or requests corrections. Restricted to the assigned advisor and admins.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DeliverableReviewInput"
+      responses:
+        "200":
+          description: Deliverable reviewed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Deliverable"
+    delete:
+      operationId: deleteDeliverable
+      tags: [deliverables]
+      summary: Delete a deliverable (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /deliverables/{id}/client-review:
+    patch:
+      operationId: reviewDeliverableAsClient
+      tags: [deliverables]
+      summary: Approve a SILO-reviewed deliverable or request changes as the project client
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DeliverableClientReviewInput"
+      responses:
+        "200":
+          description: Client review recorded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Deliverable"
+        "403":
+          description: Forbidden or feature disabled
+        "409":
+          description: Deliverable has not been approved by SILO
+
+  /quotes:
+    get:
+      operationId: listQuotes
+      tags: [quotes]
+      summary: List quotes
+      description: Admins see all; clients see their own
+      responses:
+        "200":
+          description: List of quotes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Quote"
+    post:
+      operationId: createQuote
+      tags: [quotes]
+      summary: Submit a quote request
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/QuoteInput"
+      responses:
+        "201":
+          description: Quote submitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Quote"
+
+  /quotes/{id}:
+    get:
+      operationId: getQuote
+      tags: [quotes]
+      summary: Get a quote by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Quote details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Quote"
+    patch:
+      operationId: updateQuote
+      tags: [quotes]
+      summary: Update quote status/amount (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/QuoteUpdate"
+      responses:
+        "200":
+          description: Updated quote
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Quote"
+
+  /quotes/{id}/reserve:
+    post:
+      operationId: reserveQuote
+      tags: [quotes]
+      summary: Reserve an unassigned quote request
+      description: Atomically assigns an open request to the authenticated advisor, subject to the 80-case capacity limit.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Quote request reserved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Quote"
+        "409":
+          description: Request unavailable or advisor capacity reached
+
+  /quotes/{id}/treatment:
+    post:
+      operationId: updateQuoteTreatment
+      tags: [quotes]
+      summary: Persist an operational treatment action on an assigned quote request
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/QuoteTreatmentInput"
+      responses:
+        "200":
+          description: Updated quote workflow
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Quote"
+        "403":
+          description: Forbidden
+        "409":
+          description: Invalid workflow transition
+
+  /projects/{id}/comments:
+    get:
+      operationId: listComments
+      tags: [comments]
+      summary: List comments for a project
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of comments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Comment"
+        "401":
+          description: Unauthorized
+    post:
+      operationId: addComment
+      tags: [comments]
+      summary: Add a comment to a project
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CommentInput"
+      responses:
+        "201":
+          description: Comment created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Comment"
+        "401":
+          description: Unauthorized
+
+  /partner/missions:
+    get:
+      operationId: listPartnerMissions
+      tags: [partner]
+      summary: List partner missions (admin sees all, partner sees own)
+      responses:
+        "200":
+          description: List of missions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PartnerMission"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+    post:
+      operationId: createPartnerMission
+      tags: [partner]
+      summary: Create a partner mission (admin only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PartnerMissionInput"
+      responses:
+        "201":
+          description: Mission created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PartnerMission"
+
+  /partners:
+    get:
+      operationId: listPartners
+      tags: [partner]
+      summary: List partners in the caller's scope
+      responses:
+        "200":
+          description: List of partners
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Partner"
+    post:
+      operationId: createPartner
+      tags: [partner]
+      summary: Create a partner profile (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PartnerInput"
+      responses:
+        "201":
+          description: Partner created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Partner"
+
+  /partners/{id}:
+    patch:
+      operationId: updatePartner
+      tags: [partner]
+      summary: Update a partner profile
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PartnerUpdate"
+      responses:
+        "200":
+          description: Partner updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Partner"
+
+  /partner/missions/{id}:
+    patch:
+      operationId: updatePartnerMission
+      tags: [partner]
+      summary: Update a partner mission status
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PartnerMissionUpdate"
+      responses:
+        "200":
+          description: Updated mission
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PartnerMission"
+
+  /transactions:
+    get:
+      operationId: listTransactions
+      tags: [finance]
+      summary: List transactions (role-shaped amounts)
+      description: Admin/PM see full split; partners only their 70% share; clients only their totals
+      responses:
+        "200":
+          description: Transactions visible to the caller
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Transaction"
+    post:
+      operationId: createTransaction
+      tags: [finance]
+      summary: Prepare a payment request (admin/PM) — split computed server-side
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TransactionInput"
+      responses:
+        "201":
+          description: Pending payment created with server-computed split
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Transaction"
+        "400":
+          description: Validation error (e.g. below quote floor)
+        "403":
+          description: Forbidden
+
+  /transactions/{id}/checkout:
+    post:
+      operationId: createTransactionCheckout
+      tags: [finance]
+      summary: Create or resume the authenticated client's Stripe Checkout
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Stripe-hosted payment URL
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TransactionCheckout"
+        "403":
+          description: Forbidden
+        "404":
+          description: Transaction not found
+        "409":
+          description: Transaction is no longer payable
+        "502":
+          description: Payment provider unavailable
+        "503":
+          description: Payment provider not configured
+
+  /frp/accounts:
+    get:
+      operationId: listFrpAccounts
+      tags: [finance]
+      summary: List FRP accounts (admin/PM all, partner own only)
+      responses:
+        "200":
+          description: FRP accounts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/FrpAccount"
+        "403":
+          description: Forbidden
+
+  /frp/movements:
+    get:
+      operationId: listFrpMovements
+      tags: [finance]
+      summary: List FRP movements (admin/PM all, partner own only)
+      responses:
+        "200":
+          description: FRP movements
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/FrpMovement"
+        "403":
+          description: Forbidden
+
+  /reviews:
+    get:
+      operationId: listPartnerReviews
+      tags: [partner]
+      summary: List reviewable missions or recorded partner reviews for the caller
+      responses:
+        "200":
+          description: Role-scoped review list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PartnerReview"
+    post:
+      operationId: createPartnerReview
+      tags: [partner]
+      summary: Review a completed and validated partner mission as its client
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PartnerReviewInput"
+      responses:
+        "201":
+          description: Review recorded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PartnerReview"
+        "403":
+          description: Forbidden
+        "409":
+          description: Mission not reviewable or already reviewed
+
+  /feature-flags:
+    get:
+      operationId: getResolvedFeatureFlags
+      tags: [feature-flags]
+      summary: Resolved feature flags for the calling user
+      responses:
+        "200":
+          description: Map of feature key to enabled, resolved for the caller
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResolvedFeatureFlags"
+
+  /feature-flags/state:
+    get:
+      operationId: getFeatureFlagsState
+      tags: [feature-flags]
+      summary: Full feature flags state (admin/PM)
+      responses:
+        "200":
+          description: Full state
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FeatureFlagsState"
+        "403":
+          description: Forbidden
+
+  /feature-flags/global/{key}:
+    put:
+      operationId: setGlobalFeatureFlag
+      tags: [feature-flags]
+      summary: Set or reset a global flag (admin only)
+      parameters:
+        - name: key
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GlobalFlagUpdate"
+      responses:
+        "200":
+          description: Updated state
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FeatureFlagsState"
+        "403":
+          description: Forbidden
+
+  /feature-flags/delegations/{key}:
+    put:
+      operationId: setFeatureFlagDelegation
+      tags: [feature-flags]
+      summary: Delegate (or revoke) a delegable key to the PM (admin only)
+      parameters:
+        - name: key
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DelegationUpdate"
+      responses:
+        "200":
+          description: Updated state
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FeatureFlagsState"
+        "403":
+          description: Forbidden
+
+  /feature-flags/overrides:
+    post:
+      operationId: createFeatureFlagOverride
+      tags: [feature-flags]
+      summary: Add a targeted override (admin, or PM if delegated)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FeatureFlagOverrideInput"
+      responses:
+        "201":
+          description: Override created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FeatureFlagOverride"
+        "403":
+          description: Forbidden
+
+  /feature-flags/overrides/{id}:
+    delete:
+      operationId: deleteFeatureFlagOverride
+      tags: [feature-flags]
+      summary: Remove an override (admin, or PM if delegated)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Override removed
+        "403":
+          description: Forbidden
+
+  /feed/{projectId}:
+    get:
+      operationId: listFeedEntries
+      tags: [feed]
+      summary: List feed entries for a project (filtered by role server-side)
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Feed entries visible to the caller
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/FeedEntry"
+    post:
+      operationId: createFeedEntry
+      tags: [feed]
+      summary: Post a message, note or escalation to the project feed
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FeedEntryInput"
+      responses:
+        "201":
+          description: Entry created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FeedEntry"
+        "400":
+          description: Validation error
+        "403":
+          description: Forbidden (role/channel not allowed)
+
+  /comm/state:
+    get:
+      operationId: getCommState
+      tags: [comm]
+      summary: Full communication settings (admin/PM only)
+      responses:
+        "200":
+          description: Global block and per-project settings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CommState"
+        "403":
+          description: Forbidden
+
+  /comm/projects/{projectId}:
+    get:
+      operationId: getProjectCommStatus
+      tags: [comm]
+      summary: Communication status for a project (shaped by role)
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Project communication status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CommProjectStatus"
+
+  /comm/global-block:
+    put:
+      operationId: setCommGlobalBlock
+      tags: [comm]
+      summary: Set the global Client↔Agency block (admin only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SetCommGlobalBlockInput"
+      responses:
+        "200":
+          description: Updated state
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CommState"
+        "403":
+          description: Forbidden
+
+  /comm/projects/{projectId}/authorization:
+    put:
+      operationId: setCommAuthorization
+      tags: [comm]
+      summary: Authorize/revoke PM activation on a project (admin only)
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SetCommAuthorizationInput"
+      responses:
+        "200":
+          description: Updated state
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CommState"
+        "403":
+          description: Forbidden
+
+  /comm/projects/{projectId}/activation:
+    put:
+      operationId: setCommActivation
+      tags: [comm]
+      summary: Activate/deactivate direct communication (PM only, requires admin authorization)
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SetCommActivationInput"
+      responses:
+        "200":
+          description: Updated project status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CommProjectStatus"
+        "403":
+          description: Forbidden (no admin authorization or global block)
+
+  /dashboard/stats:
+    get:
+      operationId: getDashboardStats
+      tags: [dashboard]
+      summary: Get dashboard summary statistics
+      responses:
+        "200":
+          description: Dashboard stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardStats"
+
+  /dashboard/recent-activity:
+    get:
+      operationId: getRecentActivity
+      tags: [dashboard]
+      summary: Get recent project activity feed
+      responses:
+        "200":
+          description: Recent activity
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ActivityItem"
+
+components:
+  schemas:
+    FeedEntry:
+      type: object
+      required:
+        [
+          id,
+          projectId,
+          type,
+          authorName,
+          authorRole,
+          content,
+          internal,
+          createdAt,
+        ]
+      properties:
+        id:
+          type: integer
+        projectId:
+          type: string
+        type:
+          type: string
+          enum:
+            [
+              message,
+              audio,
+              fichier,
+              evenement,
+              note_suivi,
+              note_sensible,
+              escalade_agence_pm,
+              escalade_pm_admin,
+              evaluation,
+              score,
+              appel,
+              validation,
+            ]
+        channel:
+          type: ["string", "null"]
+          enum: [client_pm, pm_agency, client_agency, null]
+        authorName:
+          type: string
+        authorRole:
+          type: string
+          enum: [client, pm, agency, admin]
+        authorUserId:
+          type: ["string", "null"]
+        counterpartyUserId:
+          type: ["string", "null"]
+        recipient:
+          type: ["string", "null"]
+        content:
+          type: string
+        status:
+          type: ["string", "null"]
+        attachmentName:
+          type: ["string", "null"]
+        attachmentSize:
+          type: ["string", "null"]
+        attachmentKind:
+          type: ["string", "null"]
+          enum: [video, image, audio, document, null]
+        durationSec:
+          type: ["integer", "null"]
+        scoreValue:
+          type: ["number", "null"]
+        internal:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+
+    FeedEntryInput:
+      type: object
+      required: [mode, content]
+      properties:
+        mode:
+          type: string
+          enum: [message, note, escalade]
+        channel:
+          type: ["string", "null"]
+          enum: [client_pm, pm_agency, client_agency, null]
+        partnerUserId:
+          type: ["string", "null"]
+        content:
+          type: string
+          minLength: 1
+        sensible:
+          type: ["boolean", "null"]
+
+    CommProjectStatus:
+      type: object
+      required: [projectId, directEnabled]
+      properties:
+        projectId:
+          type: string
+        adminAutorisePm:
+          type: ["boolean", "null"]
+        activeParPm:
+          type: ["boolean", "null"]
+        blocageGlobal:
+          type: ["boolean", "null"]
+        directEnabled:
+          type: boolean
+
+    CommState:
+      type: object
+      required: [blocageGlobal, projets]
+      properties:
+        blocageGlobal:
+          type: boolean
+        projets:
+          type: array
+          items:
+            $ref: "#/components/schemas/CommProjectStatus"
+
+    SetCommGlobalBlockInput:
+      type: object
+      required: [blocked]
+      properties:
+        blocked:
+          type: boolean
+
+    SetCommAuthorizationInput:
+      type: object
+      required: [authorized]
+      properties:
+        authorized:
+          type: boolean
+
+    SetCommActivationInput:
+      type: object
+      required: [active]
+      properties:
+        active:
+          type: boolean
+
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+        - status
+
+    PlatformUser:
+      type: object
+      required: [id, name, email, role, status, joinedAt, projects]
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        role:
+          type: string
+          enum: [client, pm, partner, admin]
+        status:
+          type: string
+          enum: [active, suspended]
+        joinedAt:
+          type: string
+          format: date-time
+        projects:
+          type: integer
+        avatarUrl:
+          type: ["string", "null"]
+
+    ContactInput:
+      type: object
+      required: [name, email, serviceType, message]
+      properties:
+        name:
+          type: string
+          minLength: 1
+        email:
+          type: string
+          format: email
+        phone:
+          type: ["string", "null"]
+        serviceType:
+          type: string
+          enum: [mariage, clip, corporate, reseaux, autre]
+        budget:
+          type: ["string", "null"]
+        message:
+          type: string
+          minLength: 1
+
+    ContactSubmission:
+      type: object
+      required: [id, name, email, serviceType, message, createdAt]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: ["string", "null"]
+        serviceType:
+          type: string
+        budget:
+          type: ["string", "null"]
+        message:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    Project:
+      type: object
+      required: [id, title, type, status, clientName, clientEmail, createdAt]
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        type:
+          type: string
+          enum: [mariage, clip, corporate, reseaux]
+        status:
+          type: string
+          enum:
+            [
+              lead,
+              devis,
+              production,
+              post_production,
+              livraison,
+              termine,
+              annule,
+            ]
+        clientName:
+          type: string
+        clientEmail:
+          type: string
+        clientUserId:
+          type: ["string", "null"]
+        advisorUserId:
+          type: ["string", "null"]
+        description:
+          type: ["string", "null"]
+        amount:
+          type: ["number", "null"]
+        shootingDate:
+          type: ["string", "null"]
+          format: date
+        deliveryDate:
+          type: ["string", "null"]
+          format: date
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    ProjectInput:
+      type: object
+      required: [title, type, clientName, clientEmail]
+      properties:
+        title:
+          type: string
+          minLength: 1
+        type:
+          type: string
+          enum: [mariage, clip, corporate, reseaux]
+        clientName:
+          type: string
+        clientEmail:
+          type: string
+        clientUserId:
+          type: ["string", "null"]
+        advisorUserId:
+          type: ["string", "null"]
+        description:
+          type: ["string", "null"]
+        amount:
+          type: ["number", "null"]
+        shootingDate:
+          type: ["string", "null"]
+          format: date
+        deliveryDate:
+          type: ["string", "null"]
+          format: date
+
+    ProjectUpdate:
+      type: object
+      properties:
+        title:
+          type: string
+        type:
+          type: string
+          enum: [mariage, clip, corporate, reseaux]
+        status:
+          type: string
+          enum:
+            [
+              lead,
+              devis,
+              production,
+              post_production,
+              livraison,
+              termine,
+              annule,
+            ]
+        description:
+          type: ["string", "null"]
+        amount:
+          type: ["number", "null"]
+        shootingDate:
+          type: ["string", "null"]
+          format: date
+        deliveryDate:
+          type: ["string", "null"]
+          format: date
+        clientUserId:
+          type: ["string", "null"]
+        advisorUserId:
+          type: ["string", "null"]
+
+    Deliverable:
+      type: object
+      required:
+        [
+          id,
+          projectId,
+          name,
+          url,
+          type,
+          status,
+          version,
+          clientStatus,
+          createdAt,
+        ]
+      properties:
+        id:
+          type: integer
+        projectId:
+          type: integer
+        name:
+          type: string
+        url:
+          type: string
+        type:
+          type: string
+          enum: [video, photo, audio, document, autre]
+        size:
+          type: ["string", "null"]
+        status:
+          type: string
+          enum: [pending_review, approved, changes_requested]
+        version:
+          type: integer
+          minimum: 1
+        submittedByUserId:
+          type: ["string", "null"]
+        reviewedByUserId:
+          type: ["string", "null"]
+        reviewedAt:
+          type: ["string", "null"]
+          format: date-time
+        reviewNotes:
+          type: ["string", "null"]
+        clientStatus:
+          type: string
+          enum: [pending, approved, changes_requested]
+        clientReviewedByUserId:
+          type: ["string", "null"]
+        clientReviewedAt:
+          type: ["string", "null"]
+          format: date-time
+        clientReviewNotes:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+
+    DeliverableInput:
+      type: object
+      required: [name, url, type]
+      properties:
+        name:
+          type: string
+          minLength: 1
+        url:
+          type: string
+        type:
+          type: string
+          enum: [video, photo, audio, document, autre]
+        size:
+          type: ["string", "null"]
+        version:
+          type: integer
+          minimum: 1
+
+    DeliverableReviewInput:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [approved, changes_requested]
+        notes:
+          type: ["string", "null"]
+          maxLength: 2000
+
+    DeliverableClientReviewInput:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [approved, changes_requested]
+        notes:
+          type: ["string", "null"]
+          maxLength: 2000
+
+    ProjectFile:
+      type: object
+      required:
+        [
+          id,
+          projectId,
+          name,
+          storageBucket,
+          storagePath,
+          sizeBytes,
+          sourceRole,
+          createdAt,
+        ]
+      properties:
+        id:
+          type: integer
+        projectId:
+          type: integer
+        name:
+          type: string
+        storageBucket:
+          type: string
+          enum: [project-files, client-uploads]
+        storagePath:
+          type: string
+        mimeType:
+          type: ["string", "null"]
+        sizeBytes:
+          type: integer
+          minimum: 0
+        sourceRole:
+          type: string
+          enum: [client, pm, admin]
+        createdAt:
+          type: string
+          format: date-time
+
+    ProjectFileInput:
+      type: object
+      required: [name, storageBucket, storagePath, sizeBytes]
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 500
+        storageBucket:
+          type: string
+          enum: [project-files, client-uploads]
+        storagePath:
+          type: string
+          minLength: 1
+          maxLength: 2000
+        mimeType:
+          type: ["string", "null"]
+          maxLength: 255
+        sizeBytes:
+          type: integer
+          minimum: 0
+
+    Quote:
+      type: object
+      required:
+        [id, serviceType, status, clientName, clientEmail, createdAt, updatedAt]
+      properties:
+        id:
+          type: integer
+        serviceType:
+          type: string
+          enum: [mariage, clip, corporate, reseaux, autre]
+        status:
+          type: string
+          enum: [en_attente, envoye, accepte, refuse]
+        clientName:
+          type: string
+        clientEmail:
+          type: string
+        clientUserId:
+          type: ["string", "null"]
+        advisorUserId:
+          type: ["string", "null"]
+        workflowStatus:
+          type: ["string", "null"]
+          enum: [new, in_progress, waiting, follow_up, closed, null]
+        waitReason:
+          type: ["string", "null"]
+          enum:
+            [
+              escalade,
+              rdv_telephonique,
+              suivi,
+              retour_client_48h,
+              retour_agence_48h,
+              validation_admin,
+              fichier_client,
+              correction_agence,
+              null,
+            ]
+        waitUntil:
+          type: ["string", "null"]
+          format: date-time
+        followUpUntil:
+          type: ["string", "null"]
+          format: date-time
+        reservedAt:
+          type: ["string", "null"]
+          format: date-time
+        lastTreatedAt:
+          type: ["string", "null"]
+          format: date-time
+        closedAt:
+          type: ["string", "null"]
+          format: date-time
+        details:
+          type: ["string", "null"]
+        budget:
+          type: ["string", "null"]
+        amount:
+          type: ["number", "null"]
+        notes:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    QuoteInput:
+      type: object
+      required: [serviceType, clientName, clientEmail, details]
+      properties:
+        serviceType:
+          type: string
+          enum: [mariage, clip, corporate, reseaux, autre]
+        clientName:
+          type: string
+        clientEmail:
+          type: string
+        clientUserId:
+          type: ["string", "null"]
+        advisorUserId:
+          type: ["string", "null"]
+        details:
+          type: string
+        budget:
+          type: ["string", "null"]
+
+    QuoteUpdate:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [en_attente, envoye, accepte, refuse]
+        amount:
+          type: ["number", "null"]
+        notes:
+          type: ["string", "null"]
+        advisorUserId:
+          type: ["string", "null"]
+
+    QuoteTreatmentInput:
+      type: object
+      required: [action]
+      properties:
+        action:
+          type: string
+          enum:
+            [
+              client_called,
+              missed_call,
+              unreachable,
+              message_sent,
+              wait,
+              resume,
+              follow_up,
+              close,
+            ]
+        waitReason:
+          type: ["string", "null"]
+          enum:
+            [
+              escalade,
+              rdv_telephonique,
+              suivi,
+              retour_client_48h,
+              retour_agence_48h,
+              validation_admin,
+              fichier_client,
+              correction_agence,
+              null,
+            ]
+        waitUntil:
+          type: ["string", "null"]
+          format: date-time
+        followUpUntil:
+          type: ["string", "null"]
+          format: date-time
+
+    DashboardStats:
+      type: object
+      required:
+        [
+          totalProjects,
+          activeProjects,
+          pendingQuotes,
+          deliveredProjects,
+          revenueTotal,
+          projectsByType,
+          projectsByStatus,
+        ]
+      properties:
+        totalProjects:
+          type: integer
+        activeProjects:
+          type: integer
+        pendingQuotes:
+          type: integer
+        deliveredProjects:
+          type: integer
+        revenueTotal:
+          type: number
+        projectsByType:
+          type: array
+          items:
+            type: object
+            required: [type, count]
+            properties:
+              type:
+                type: string
+              count:
+                type: integer
+        projectsByStatus:
+          type: array
+          items:
+            type: object
+            required: [status, count]
+            properties:
+              status:
+                type: string
+              count:
+                type: integer
+
+    ActivityItem:
+      type: object
+      required: [id, type, title, description, createdAt]
+      properties:
+        id:
+          type: integer
+        type:
+          type: string
+          enum:
+            [
+              project_created,
+              project_updated,
+              deliverable_added,
+              quote_submitted,
+              quote_updated,
+              contact_received,
+            ]
+        title:
+          type: string
+        description:
+          type: string
+        projectId:
+          type: ["integer", "null"]
+        createdAt:
+          type: string
+          format: date-time
+
+    Comment:
+      type: object
+      required:
+        [id, projectId, userId, authorName, content, type, isAdmin, createdAt]
+      properties:
+        id:
+          type: integer
+        projectId:
+          type: integer
+        userId:
+          type: string
+        authorName:
+          type: string
+        content:
+          type: string
+        type:
+          type: string
+          enum: [comment, correction]
+        isAdmin:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+
+    CommentInput:
+      type: object
+      required: [content, authorName]
+      properties:
+        content:
+          type: string
+          minLength: 1
+          maxLength: 2000
+        type:
+          type: string
+          enum: [comment, correction]
+        authorName:
+          type: string
+          minLength: 1
+          maxLength: 200
+
+    Partner:
+      type: object
+      required:
+        [
+          id,
+          userId,
+          name,
+          kind,
+          email,
+          specialties,
+          status,
+          createdAt,
+          updatedAt,
+        ]
+      properties:
+        id:
+          type: integer
+        userId:
+          type: string
+        name:
+          type: string
+        kind:
+          type: string
+          enum: [agency, individual]
+        email:
+          type: string
+          format: email
+        phone:
+          type: ["string", "null"]
+        city:
+          type: ["string", "null"]
+        specialties:
+          type: array
+          items:
+            type: string
+        portfolioUrl:
+          type: ["string", "null"]
+        status:
+          type: string
+          enum: [pending, active, suspended, rejected]
+        advisorUserId:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    PartnerInput:
+      type: object
+      required: [userId, name, kind, email]
+      properties:
+        userId:
+          type: string
+          minLength: 1
+        name:
+          type: string
+          minLength: 1
+        kind:
+          type: string
+          enum: [agency, individual]
+        email:
+          type: string
+          format: email
+        phone:
+          type: ["string", "null"]
+        city:
+          type: ["string", "null"]
+        specialties:
+          type: array
+          items:
+            type: string
+        portfolioUrl:
+          type: ["string", "null"]
+        advisorUserId:
+          type: ["string", "null"]
+
+    PartnerUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+        email:
+          type: string
+          format: email
+        phone:
+          type: ["string", "null"]
+        city:
+          type: ["string", "null"]
+        specialties:
+          type: array
+          items:
+            type: string
+        portfolioUrl:
+          type: ["string", "null"]
+        status:
+          type: string
+          enum: [pending, active, suspended, rejected]
+        advisorUserId:
+          type: ["string", "null"]
+
+    PartnerMission:
+      type: object
+      required:
+        [id, partnerId, partnerName, title, status, createdAt, updatedAt]
+      properties:
+        id:
+          type: integer
+        projectId:
+          type: ["integer", "null"]
+        partnerId:
+          type: string
+        partnerName:
+          type: string
+        title:
+          type: string
+        brief:
+          type: ["string", "null"]
+        status:
+          type: string
+          enum: [en_attente, accepte, en_cours, livre, valide, refuse]
+        dueDate:
+          type: ["string", "null"]
+        rating:
+          type: ["number", "null"]
+        notes:
+          type: ["string", "null"]
+        amount:
+          type: ["number", "null"]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    PartnerMissionInput:
+      type: object
+      required: [partnerId, partnerName, title]
+      properties:
+        projectId:
+          type: ["integer", "null"]
+        partnerId:
+          type: string
+          minLength: 1
+        partnerName:
+          type: string
+          minLength: 1
+        title:
+          type: string
+          minLength: 1
+        brief:
+          type: ["string", "null"]
+        dueDate:
+          type: ["string", "null"]
+        amount:
+          type: ["number", "null"]
+
+    PartnerMissionUpdate:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [en_attente, accepte, en_cours, livre, valide, refuse]
+        notes:
+          type: ["string", "null"]
+        rating:
+          type: ["number", "null"]
+
+    Transaction:
+      type: object
+      required:
+        [
+          id,
+          title,
+          agencyName,
+          kind,
+          status,
+          calculationVersion,
+          date,
+          paidAt,
+          createdAt,
+        ]
+      properties:
+        id:
+          type: integer
+        projectId:
+          type: ["integer", "null"]
+        title:
+          type: string
+        clientUserId:
+          type: ["string", "null"]
+        agencyId:
+          type: ["string", "null"]
+        agencyName:
+          type: string
+        advisorUserId:
+          type: ["string", "null"]
+        kind:
+          type: string
+          enum: [ponctuel, abonnement]
+        status:
+          type: string
+          enum: [en_attente_paiement, confirmee, echouee, annulee, remboursee]
+        amountHt:
+          type: ["number", "null"]
+        tva:
+          type: ["number", "null"]
+        ttc:
+          type: ["number", "null"]
+        partAgence:
+          type: ["number", "null"]
+        partSilo:
+          type: ["number", "null"]
+        partFrp:
+          type: ["number", "null"]
+        fraisPspTotal:
+          type: ["number", "null"]
+        fraisPspAgence:
+          type: ["number", "null"]
+        fraisPspSilo:
+          type: ["number", "null"]
+        partAgenceApresPsp:
+          type: ["number", "null"]
+        partSiloApresPsp:
+          type: ["number", "null"]
+        reserveIncidents:
+          type: ["number", "null"]
+        primeConseiller:
+          type: ["number", "null"]
+        contributionSiloApresVariables:
+          type: ["number", "null"]
+        calculationVersion:
+          type: string
+        date:
+          type: string
+        paidAt:
+          type: ["string", "null"]
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+
+    TransactionInput:
+      type: object
+      required: [projectId, title, agencyId, kind, amountHt]
+      properties:
+        projectId:
+          type: integer
+        title:
+          type: string
+          minLength: 1
+        agencyId:
+          type: string
+          minLength: 1
+        kind:
+          type: string
+          enum: [ponctuel, abonnement]
+        amountHt:
+          type: number
+          exclusiveMinimum: 0
+        date:
+          type: ["string", "null"]
+
+    TransactionCheckout:
+      type: object
+      required: [url]
+      properties:
+        url:
+          type: string
+          format: uri
+
+    FrpAccount:
+      type: object
+      required: [agencyId, agencyName, balance, transactionsThisYear, outcome]
+      properties:
+        agencyId:
+          type: string
+        agencyName:
+          type: string
+        balance:
+          type: number
+        transactionsThisYear:
+          type: integer
+        outcome:
+          type: string
+          enum: [decision_manuelle_requise]
+
+    FrpMovement:
+      type: object
+      required: [id, agencyId, agencyName, date, label, type, amount]
+      properties:
+        id:
+          type: integer
+        transactionId:
+          type: ["integer", "null"]
+        agencyId:
+          type: string
+        agencyName:
+          type: string
+        date:
+          type: string
+        label:
+          type: string
+        projectTitle:
+          type: ["string", "null"]
+        type:
+          type: string
+          enum: [credit, reversement, reinvestissement]
+        amount:
+          type: number
+
+    PartnerReview:
+      type: object
+      required:
+        [
+          id,
+          missionId,
+          projectId,
+          projectTitle,
+          partnerId,
+          partnerName,
+          deliveredAt,
+          rating,
+          comment,
+          createdAt,
+        ]
+      properties:
+        id:
+          type: ["integer", "null"]
+        missionId:
+          type: integer
+        projectId:
+          type: integer
+        projectTitle:
+          type: string
+        partnerId:
+          type: string
+        partnerName:
+          type: string
+        deliveredAt:
+          type: ["string", "null"]
+          format: date
+        rating:
+          type: ["integer", "null"]
+          minimum: 1
+          maximum: 5
+        comment:
+          type: ["string", "null"]
+        createdAt:
+          type: ["string", "null"]
+          format: date-time
+
+    PartnerReviewInput:
+      type: object
+      required: [missionId, rating]
+      properties:
+        missionId:
+          type: integer
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        comment:
+          type: ["string", "null"]
+          maxLength: 2000
+
+    ResolvedFeatureFlags:
+      type: object
+      required: [flags]
+      properties:
+        flags:
+          type: object
+          additionalProperties:
+            type: boolean
+
+    FeatureFlagsState:
+      type: object
+      required: [global, overrides, pmDelegations]
+      properties:
+        global:
+          type: object
+          additionalProperties:
+            type: boolean
+        overrides:
+          type: array
+          items:
+            $ref: "#/components/schemas/FeatureFlagOverride"
+        pmDelegations:
+          type: array
+          items:
+            type: string
+
+    FeatureFlagOverride:
+      type: object
+      required: [id, featureKey, scope, target, enabled, createdBy]
+      properties:
+        id:
+          type: integer
+        featureKey:
+          type: string
+        scope:
+          type: string
+          enum: [role, user, project, subscription]
+        target:
+          type: string
+        enabled:
+          type: boolean
+        createdBy:
+          type: string
+          enum: [admin, pm]
+
+    FeatureFlagOverrideInput:
+      type: object
+      required: [featureKey, scope, target, enabled]
+      properties:
+        featureKey:
+          type: string
+          minLength: 1
+        scope:
+          type: string
+          enum: [role, user, project, subscription]
+        target:
+          type: string
+        enabled:
+          type: boolean
+
+    GlobalFlagUpdate:
+      type: object
+      required: [enabled]
+      properties:
+        enabled:
+          type: ["boolean", "null"]
+          description: null resets the flag to its default
+
+    DelegationUpdate:
+      type: object
+      required: [delegated]
+      properties:
+        delegated:
+          type: boolean

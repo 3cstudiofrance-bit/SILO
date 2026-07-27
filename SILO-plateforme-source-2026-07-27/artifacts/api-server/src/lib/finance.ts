@@ -1,0 +1,15 @@
+export {
+  FINANCIAL_CALCULATION_VERSION,
+  FRP_ANNUAL_TX_THRESHOLD,
+  QUOTE_FLOOR_ABONNEMENT_HT,
+  QUOTE_FLOOR_PONCTUEL_HT,
+  SPLIT,
+  TVA_RATE,
+  centsToEuros,
+  computeOperationalAllocation,
+  computeSplit,
+  eurosToCents,
+  frpOutcome,
+  meetsQuoteFloor,
+  quoteFloorFor,
+} from "@workspace/domain";

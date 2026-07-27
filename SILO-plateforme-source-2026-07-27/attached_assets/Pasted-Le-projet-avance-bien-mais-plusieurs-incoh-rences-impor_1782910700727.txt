@@ -1,0 +1,471 @@
+Le projet avance bien mais plusieurs incohérences importantes doivent être corrigées avant de continuer le développement.
+
+⚠️ IMPORTANT
+Ne supprime aucune fonctionnalité existante.
+Ne modifie pas le design général de 3C Studio.
+Travaille uniquement par amélioration.
+
+=========================================
+1. CORRECTION DE L'INTERFACE
+=========================================
+
+Plusieurs textes sont quasiment invisibles à cause des couleurs utilisées.
+
+Corriger notamment :
+
+- titres noirs sur fond noir
+- sous-titres gris trop foncés
+- textes des formulaires
+- placeholders
+- labels
+- boutons secondaires
+- menus déroulants
+- badges
+
+Le contraste doit respecter les normes d'accessibilité (WCAG).
+
+Utiliser systématiquement :
+
+Fond :
+#0B0B0B
+
+Texte principal :
+#FFFFFF
+
+Texte secondaire :
+#BDBDBD
+
+Rouge 3C Studio :
+#E53935
+
+Bleu :
+#245DFF
+
+=========================================
+2. PAGE DE CONNEXION
+=========================================
+
+Le texte :
+
+"Sign in to Code Assistant"
+
+est totalement incorrect.
+
+Il doit devenir :
+
+Connexion à votre espace 3C Studio
+
+Sous-titre :
+
+Connectez-vous pour accéder à votre espace sécurisé.
+
+Le branding doit être entièrement 3C Studio.
+
+Supprimer toute référence à Code Assistant.
+
+=========================================
+3. MULTI-ESPACES
+=========================================
+
+Aujourd'hui il n'existe que :
+
+Espace Client
+
+Or la plateforme doit gérer plusieurs métiers.
+
+Créer les espaces suivants.
+
+-----------------------------------------
+A. ESPACE CLIENT
+-----------------------------------------
+
+Fonctions :
+
+- Tableau de bord
+- Mes projets
+- Mes devis
+- Mes factures
+- Paiements
+- Signature électronique
+- Messages
+- Appels vidéo
+- Documents
+- Profil
+
+-----------------------------------------
+B. ESPACE CHEF DE PROJET
+-----------------------------------------
+
+Nouveau portail.
+
+Le chef de projet reçoit automatiquement les nouvelles commandes.
+
+Fonctions :
+
+Dashboard
+
+Commandes à traiter
+
+Projets actifs
+
+Créer les devis
+
+Créer les factures
+
+Attribuer une agence
+
+Planning
+
+Discussion client
+
+Discussion agence
+
+Visioconférences
+
+Validation des livrables
+
+Documents
+
+Notifications
+
+-----------------------------------------
+C. ESPACE AGENCE PARTENAIRE
+-----------------------------------------
+
+Nouveau portail.
+
+Une agence ne voit QUE les projets qui lui sont attribués.
+
+Fonctions :
+
+Dashboard
+
+Commandes attribuées
+
+Planning
+
+Livraison
+
+Upload fichiers
+
+Messages
+
+Appel vidéo
+
+Facturation agence
+
+Historique
+
+Profil
+
+-----------------------------------------
+D. ESPACE ADMINISTRATEUR 3C STUDIO
+-----------------------------------------
+
+Portail complet.
+
+Fonctions :
+
+Vue globale
+
+Tous les utilisateurs
+
+Tous les clients
+
+Toutes les agences
+
+Tous les chefs de projet
+
+Tous les projets
+
+Tous les devis
+
+Toutes les factures
+
+Paiements Stripe
+
+Stockage Supabase
+
+Logs
+
+Analytics
+
+Configuration
+
+Rôles
+
+Permissions
+
+=========================================
+4. AUTHENTIFICATION
+=========================================
+
+Mettre en place un véritable système RBAC.
+
+Les rôles :
+
+client
+
+project_manager
+
+agency
+
+admin
+
+Après connexion :
+
+client
+→ dashboard client
+
+project_manager
+→ dashboard chef de projet
+
+agency
+→ dashboard agence
+
+admin
+→ dashboard administration
+
+=========================================
+5. SUPABASE
+=========================================
+
+Je constate que Supabase est installé mais n'est pas réellement utilisé.
+
+Je veux maintenant connecter toutes les pages.
+
+Les données ne doivent plus être simulées.
+
+Les dashboards doivent lire directement :
+
+Supabase Auth
+
+Supabase Database
+
+Supabase Storage
+
+Supabase Realtime
+
+=========================================
+6. TEMPS RÉEL
+=========================================
+
+Mettre en place Supabase Realtime.
+
+Je veux :
+
+✔ nouveaux messages instantanés
+
+✔ notifications
+
+✔ statut en ligne
+
+✔ typing indicator
+
+✔ progression projet
+
+✔ changement de statut
+
+✔ nouveaux fichiers
+
+✔ nouveaux devis
+
+✔ signatures
+
+Sans rechargement de page.
+
+=========================================
+7. MESSAGERIE
+=========================================
+
+Créer une vraie messagerie professionnelle.
+
+Conversation Client ↔ Chef de projet
+
+Conversation Chef de projet ↔ Agence
+
+Conversation Admin ↔ Tout le monde
+
+Le client ne communique jamais directement avec une agence.
+
+Fonctions :
+
+texte
+
+emoji
+
+pièces jointes
+
+images
+
+PDF
+
+vidéos
+
+messages lus
+
+typing
+
+notifications
+
+=========================================
+8. APPEL VIDEO
+=========================================
+
+Créer l'intégration LiveKit.
+
+Chaque projet possède :
+
+Bouton
+
+"Démarrer une réunion"
+
+Le chef de projet peut inviter :
+
+client
+
+agence
+
+admin
+
+=========================================
+9. GESTION DES FICHIERS
+=========================================
+
+Utiliser Supabase Storage.
+
+Chaque projet possède :
+
+Documents
+
+Rushes
+
+Montages
+
+Exports
+
+Contrats
+
+Factures
+
+Devis
+
+Le client peut :
+
+prévisualiser
+
+télécharger
+
+commenter
+
+Le chef de projet peut :
+
+organiser
+
+déplacer
+
+supprimer
+
+versionner
+
+=========================================
+10. NOTIFICATIONS
+=========================================
+
+Créer un véritable centre de notifications.
+
+Notifications :
+
+nouveau message
+
+nouveau devis
+
+nouvelle facture
+
+signature
+
+paiement
+
+upload
+
+commentaire
+
+appel vidéo
+
+livraison
+
+=========================================
+11. SIGNATURE ELECTRONIQUE
+=========================================
+
+Préparer OpenSign.
+
+Depuis un devis :
+
+Signer
+
+Refuser
+
+Télécharger
+
+Historique
+
+=========================================
+12. TABLEAU DE BORD
+=========================================
+
+Les dashboards doivent être dynamiques.
+
+Les cartes actuelles sont statiques.
+
+Les connecter aux données Supabase.
+
+=========================================
+13. ARCHITECTURE
+=========================================
+
+Créer les modules :
+
+Auth
+
+Messaging
+
+Projects
+
+Storage
+
+Payments
+
+Notifications
+
+Video
+
+Documents
+
+Signature
+
+Admin
+
+Agency
+
+Project Manager
+
+=========================================
+14. QUALITE
+=========================================
+
+Avant toute nouvelle fonctionnalité :
+
+✔ corriger les couleurs
+
+✔ corriger tous les textes invisibles
+
+✔ supprimer toute référence à Code Assistant
+
+✔ terminer les espaces utilisateurs
+
+✔ connecter réellement Supabase
+
+✔ rendre les dashboards entièrement fonctionnels
+
+Je souhaite obtenir une véritable plateforme SaaS de production audiovisuelle, comparable à Monday.com, ClickUp et Frame.io, avec une expérience utilisateur premium, entièrement connectée à Supabase et prête à accueillir les modules Stripe, Resend, LiveKit, Firebase Cloud Messaging, OpenSign et Liveblocks.

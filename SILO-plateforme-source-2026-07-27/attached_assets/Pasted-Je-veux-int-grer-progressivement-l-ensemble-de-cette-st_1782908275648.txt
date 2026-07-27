@@ -1,0 +1,292 @@
+Je veux intégrer progressivement l’ensemble de cette stack dans la plateforme 3C Studio.
+
+Important :
+- Ne supprime rien de l’existant.
+- Ne casse aucune page actuelle.
+- Garde Supabase déjà configuré manuellement via les variables d’environnement.
+- Travaille par modules.
+- Si une clé API manque, crée la structure, les composants, les fichiers `.env.example` et utilise des mocks propres.
+
+Stack cible :
+
+1. Supabase PostgreSQL
+Créer le schéma de base :
+- users
+- user_profiles
+- companies
+- agencies
+- projects
+- project_members
+- conversations
+- messages
+- files
+- tasks
+- quotes
+- invoices
+- payments
+- notifications
+- reviews
+- activity_logs
+- signatures
+- video_rooms
+- collaborative_documents
+
+2. Supabase Auth
+Activer :
+- Email / mot de passe
+- Magic Link
+- Google
+- Microsoft
+
+Rôles utilisateurs :
+- client
+- agency
+- project_manager
+- admin
+
+Créer une logique de permissions par rôle.
+
+3. Supabase Storage
+Créer les buckets :
+- project-files
+- deliverables
+- invoices
+- quotes
+- contracts
+- agency-assets
+- client-uploads
+
+Prévoir upload, download, preview et suppression selon les permissions.
+
+4. Supabase Realtime
+Utiliser Realtime pour :
+- chat projet
+- notifications
+- statut en ligne
+- typing indicator
+- mises à jour de projet
+- changements de statut
+
+5. Supabase Edge Functions
+Préparer des fonctions serveur pour :
+- envoi email
+- création devis
+- création facture
+- webhook Stripe
+- notification projet
+- génération lien LiveKit
+- signature électronique
+- synchronisation fichiers
+
+6. Frontend React + Next.js
+Si le projet actuel n’est pas Next.js, ne migre pas brutalement.
+Prépare une architecture compatible :
+- app router ou routing existant
+- layouts protégés
+- pages publiques
+- dashboards privés
+- middleware auth
+- services API
+
+7. Tailwind CSS + shadcn/ui
+Installer et configurer :
+- Tailwind
+- shadcn/ui
+- Button
+- Card
+- Dialog
+- Sheet
+- Tabs
+- Table
+- Badge
+- Avatar
+- Dropdown
+- Input
+- Textarea
+- Select
+- Toast
+- Calendar
+- Command
+- Form
+
+Créer un design system 3C Studio :
+- fond sombre possible
+- blanc / noir / bleu premium
+- accents rouges
+- cartes arrondies
+- badges de statut
+- interface SaaS premium
+
+8. Stripe
+Préparer :
+- checkout
+- paiement devis
+- paiement facture
+- abonnement packs réseaux sociaux
+- webhook Stripe
+- statut paiement
+- historique des paiements
+
+Variables attendues :
+- STRIPE_SECRET_KEY
+- STRIPE_WEBHOOK_SECRET
+- NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY ou VITE_STRIPE_PUBLISHABLE_KEY
+
+9. Resend
+Préparer les emails :
+- confirmation demande de devis
+- création compte
+- magic link
+- projet créé
+- fichier livré
+- correction demandée
+- facture envoyée
+- paiement reçu
+
+Variables :
+- RESEND_API_KEY
+- RESEND_FROM_EMAIL
+
+10. LiveKit Cloud
+Préparer les appels vidéo :
+- création salle par projet
+- bouton “Démarrer un appel”
+- bouton “Rejoindre l’appel”
+- génération token côté serveur
+- accès selon rôle
+- historique des réunions
+
+Variables :
+- LIVEKIT_API_KEY
+- LIVEKIT_API_SECRET
+- LIVEKIT_URL
+
+11. Chat Supabase Realtime
+Créer :
+- MessageThread
+- MessageInput
+- ConversationList
+- OnlineStatus
+- TypingIndicator
+- FileAttachment
+- RealtimeNotification
+
+Règle métier :
+- client communique avec 3C Studio
+- agence communique avec chef de projet
+- client et agence ne communiquent jamais directement
+
+12. Firebase Cloud Messaging
+Préparer notifications push :
+- nouveau message
+- nouveau fichier
+- statut changé
+- devis prêt
+- facture envoyée
+- correction demandée
+- livraison disponible
+
+Variables :
+- FIREBASE_API_KEY
+- FIREBASE_AUTH_DOMAIN
+- FIREBASE_PROJECT_ID
+- FIREBASE_MESSAGING_SENDER_ID
+- FIREBASE_APP_ID
+- FIREBASE_VAPID_KEY
+
+13. OpenSign
+Préparer signature électronique :
+- envoi devis à signer
+- contrat à signer
+- statut signature
+- historique signature
+- fichier signé attaché au projet
+
+Créer une abstraction `signatureService` pour pouvoir connecter OpenSign ensuite.
+
+14. Liveblocks
+Préparer éditeur collaboratif :
+- brief collaboratif
+- commentaires en temps réel
+- présence utilisateur
+- édition partagée
+- documents projet
+
+Variables :
+- LIVEBLOCKS_SECRET_KEY
+- NEXT_PUBLIC_LIVEBLOCKS_PUBLIC_KEY ou VITE_LIVEBLOCKS_PUBLIC_KEY
+
+Architecture demandée :
+
+Créer les dossiers :
+- src/lib
+- src/services
+- src/components/ui
+- src/components/dashboard
+- src/components/projects
+- src/components/chat
+- src/components/files
+- src/components/payments
+- src/components/video
+- src/components/signature
+- src/components/notifications
+- src/hooks
+- src/types
+- supabase/migrations
+- supabase/functions
+
+Créer les services :
+- supabaseClient
+- authService
+- projectService
+- messageService
+- fileService
+- notificationService
+- paymentService
+- emailService
+- videoService
+- signatureService
+- collaborativeEditorService
+
+Priorité de développement :
+
+Phase 1 :
+- Supabase Auth
+- profils utilisateurs
+- rôles
+- dashboards protégés
+
+Phase 2 :
+- projets
+- fichiers
+- chat temps réel
+- notifications internes
+
+Phase 3 :
+- Stripe
+- devis
+- factures
+- paiements
+
+Phase 4 :
+- Resend
+- emails transactionnels
+
+Phase 5 :
+- LiveKit
+- appels vidéo
+
+Phase 6 :
+- OpenSign
+- signature électronique
+
+Phase 7 :
+- Liveblocks
+- éditeur collaboratif
+
+Phase 8 :
+- Firebase Cloud Messaging
+- notifications push
+
+Objectif :
+Transformer 3C Studio en une vraie plateforme SaaS de gestion audiovisuelle avec espace client, espace agence partenaire, espace chef de projet et espace administrateur.
