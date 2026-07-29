@@ -2,6 +2,11 @@ name: Déployer SILO sur Cloud Run
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/deploy-cloud-run.yml
 
 permissions:
   contents: read
@@ -36,7 +41,6 @@ jobs:
 
       - name: Configurer Docker pour Artifact Registry
         run: gcloud auth configure-docker europe-west1-docker.pkg.dev --quiet
-
 
       - name: Créer le dépôt d’images si nécessaire
         run: |
