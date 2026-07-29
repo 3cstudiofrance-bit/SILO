@@ -17,7 +17,9 @@ ENV VITE_SUPABASE_URL=$VITE_SUPABASE_URL
 ENV VITE_SUPABASE_PUBLISHABLE_KEY=$VITE_SUPABASE_PUBLISHABLE_KEY
 
 RUN pnpm install --frozen-lockfile
-RUN pnpm run build
+RUN pnpm run build \
+  && sed -i 's/<script type="module" crossorigin/<script defer/' \
+    artifacts/3c-studio/dist/public/index.html
 
 FROM node:24-bookworm-slim AS runtime
 
