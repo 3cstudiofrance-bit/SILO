@@ -21,6 +21,8 @@ RUN pnpm run build \
   && find artifacts/3c-studio/dist/public/assets -name 'index-*.js' \
     -exec sed -i 's/typeof import\.meta<"u"&&//g' {} + \
   && sed -i 's/<script type="module" crossorigin/<script defer/' \
+    artifacts/3c-studio/dist/public/index.html \
+  && sed -i 's/<link rel="stylesheet" crossorigin/<link rel="stylesheet"/' \
     artifacts/3c-studio/dist/public/index.html
 
 FROM node:24-bookworm-slim AS runtime
