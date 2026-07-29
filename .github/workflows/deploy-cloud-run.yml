@@ -72,6 +72,7 @@ jobs:
             --project="${PROJECT_ID}" \
             --region="${REGION}" \
             --platform=managed \
+            --service-account="silo-runtime@silo-88b1c.iam.gserviceaccount.com" \
             --allow-unauthenticated \
             --port=8080 \
             --min=0 \
