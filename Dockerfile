@@ -18,6 +18,8 @@ ENV VITE_SUPABASE_PUBLISHABLE_KEY=$VITE_SUPABASE_PUBLISHABLE_KEY
 
 RUN pnpm install --frozen-lockfile
 RUN pnpm run build \
+  && find artifacts/3c-studio/dist/public/assets -name 'index-*.js' \
+    -exec sed -i 's/typeof import\.meta<"u"&&//g' {} + \
   && sed -i 's/<script type="module" crossorigin/<script defer/' \
     artifacts/3c-studio/dist/public/index.html
 
