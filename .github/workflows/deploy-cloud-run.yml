@@ -39,13 +39,6 @@ jobs:
       - name: Installer Google Cloud CLI
         uses: google-github-actions/setup-gcloud@v2
 
-      - name: Activer les API Google Cloud nécessaires
-        run: |
-          gcloud services enable \
-            artifactregistry.googleapis.com \
-            run.googleapis.com \
-            secretmanager.googleapis.com
-
       - name: Configurer Docker pour Artifact Registry
         run: gcloud auth configure-docker europe-west1-docker.pkg.dev --quiet
 
