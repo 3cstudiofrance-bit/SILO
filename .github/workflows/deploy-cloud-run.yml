@@ -51,11 +51,6 @@ jobs:
             --location="${REGION}" \
             --description="Images de production SILO"
 
-      - name: Vérifier les secrets de production
-        run: |
-          gcloud secrets versions describe latest --secret=DATABASE_URL >/dev/null
-          gcloud secrets versions describe latest --secret=CLERK_SECRET_KEY >/dev/null
-
       - name: Construire et publier l’image
         run: |
           docker build \
