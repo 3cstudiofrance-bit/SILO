@@ -10,6 +10,17 @@ out-tsc
 
 # dependencies
 node_modules
+.pnpm-store/
+
+# local environment and credentials
+.env
+.env.*
+!.env.example
+*serviceAccount*.json
+*service-account*.json
+*-firebase-adminsdk-*.json
+firebase-adminsdk*.json
+secrets/
 
 # IDEs and editors
 /.idea
