@@ -15,7 +15,35 @@
     <link rel="icon" type="image/png" href="/favicon.png" />
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <main style="min-height:100vh;background:#0a1428;color:#fff;display:flex;align-items:center;justify-content:center;font-family:Arial,sans-serif">
+        <p>Chargement de SILO…</p>
+      </main>
+    </div>
+    <script>
+      (function () {
+        function showStartupError(message) {
+          console.error("[SILO] Erreur avant le démarrage de React:", message);
+          var root = document.getElementById("root");
+          if (!root) return;
+          root.innerHTML =
+            '<main style="min-height:100vh;background:#0a1428;color:#fff;display:flex;align-items:center;justify-content:center;padding:24px;font-family:Arial,sans-serif">' +
+            '<section style="max-width:520px;background:#182848;border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:32px;text-align:center">' +
+            '<h1 style="font-size:32px;margin:0">SILO</h1>' +
+            '<p style="color:#dbeafe;margin-top:16px">La plateforme n’a pas pu démarrer.</p>' +
+            '<p style="color:#94a3b8;font-size:14px">Rechargez la page. Le diagnostic technique a été enregistré.</p>' +
+            '</section></main>';
+        }
+
+        window.addEventListener("error", function (event) {
+          showStartupError(event.message || "Erreur JavaScript inconnue");
+        });
+        window.addEventListener("unhandledrejection", function (event) {
+          var reason = event.reason;
+          showStartupError(reason && reason.message ? reason.message : String(reason));
+        });
+      })();
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
