@@ -1,0 +1,91 @@
+name: Déployer SILO sur Cloud Run
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  PROJECT_ID: silo-88b1c
+  REGION: europe-west1
+  SERVICE: silo
+  IMAGE: europe-west1-docker.pkg.dev/silo-88b1c/silo/silo
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Récupérer le dépôt
+        uses: actions/checkout@v4
+
+      - name: Authentification Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+          workload_identity_provider: projects/131651476980/locations/global/workloadIdentityPools/github-silo-pool/providers/github-silo-provider
+          service_account: github-silo-deployer@silo-88b1c.iam.gserviceaccount.com
+
+      - name: Installer Google Cloud CLI
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Configurer Docker pour Artifact Registry
+        run: gcloud auth configure-docker europe-west1-docker.pkg.dev --quiet
+
+      - name: Vérifier la configuration publique
+        env:
+          VITE_CLERK_PUBLISHABLE_KEY: ${{ vars.VITE_CLERK_PUBLISHABLE_KEY }}
+          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY }}
+        run: |
+          test -n "${VITE_CLERK_PUBLISHABLE_KEY}"
+          test -n "${VITE_SUPABASE_URL}"
+          test -n "${VITE_SUPABASE_PUBLISHABLE_KEY}"
+
+      - name: Créer le dépôt d’images si nécessaire
+        run: |
+          gcloud artifacts repositories describe silo \
+            --location="${REGION}" >/dev/null 2>&1 || \
+          gcloud artifacts repositories create silo \
+            --repository-format=docker \
+            --location="${REGION}" \
+            --description="Images de production SILO"
+
+      - name: Construire et publier l’image
+        env:
+          VITE_CLERK_PUBLISHABLE_KEY: ${{ vars.VITE_CLERK_PUBLISHABLE_KEY }}
+          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY }}
+        run: |
+          docker build \
+            --build-arg="VITE_CLERK_PUBLISHABLE_KEY=${VITE_CLERK_PUBLISHABLE_KEY}" \
+            --build-arg="VITE_SUPABASE_URL=${VITE_SUPABASE_URL}" \
+            --build-arg="VITE_SUPABASE_PUBLISHABLE_KEY=${VITE_SUPABASE_PUBLISHABLE_KEY}" \
+            --tag "${IMAGE}:${GITHUB_SHA}" .
+          docker push "${IMAGE}:${GITHUB_SHA}"
+
+      - name: Déployer sur Cloud Run
+        run: |
+          gcloud run deploy "${SERVICE}" \
+            --image="${IMAGE}:${GITHUB_SHA}" \
+            --project="${PROJECT_ID}" \
+            --region="${REGION}" \
+            --platform=managed \
+            --allow-unauthenticated \
+            --port=8080 \
+            --min=0 \
+            --max=5 \
+            --memory=1Gi \
+            --cpu=1 \
+            --set-env-vars="^@^NODE_ENV=production@APP_BASE_URL=https://silovisuel.com@CORS_ALLOWED_ORIGINS=https://silovisuel.com,https://www.silovisuel.com" \
+            --set-secrets="DATABASE_URL=DATABASE_URL:latest,CLERK_SECRET_KEY=CLERK_SECRET_KEY:latest"
+
+      - name: Vérifier le service
+        run: |
+          SERVICE_URL="$(gcloud run services describe "${SERVICE}" \
+            --project="${PROJECT_ID}" \
+            --region="${REGION}" \
+            --format='value(status.url)')"
+          curl --fail --retry 12 --retry-delay 5 "${SERVICE_URL}/healthz"
