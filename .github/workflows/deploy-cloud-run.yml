@@ -12,6 +12,9 @@ env:
   REGION: europe-west1
   SERVICE: silo
   IMAGE: europe-west1-docker.pkg.dev/silo-88b1c/silo/silo
+  VITE_CLERK_PUBLISHABLE_KEY: pk_test_bmV3LWduYXQtNzUuY2xlcmsuYWNjb3VudHMuZGV2JA
+  VITE_SUPABASE_URL: https://kchnurxsqpynshyfwusn.supabase.co
+  VITE_SUPABASE_PUBLISHABLE_KEY: sb_publishable_dSzjEcdmUqFlcnorFebqLQ_rn4xlQYu
 
 jobs:
   deploy:
@@ -34,15 +37,6 @@ jobs:
       - name: Configurer Docker pour Artifact Registry
         run: gcloud auth configure-docker europe-west1-docker.pkg.dev --quiet
 
-      - name: Vérifier la configuration publique
-        env:
-          VITE_CLERK_PUBLISHABLE_KEY: ${{ vars.VITE_CLERK_PUBLISHABLE_KEY }}
-          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
-          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY }}
-        run: |
-          test -n "${VITE_CLERK_PUBLISHABLE_KEY}"
-          test -n "${VITE_SUPABASE_URL}"
-          test -n "${VITE_SUPABASE_PUBLISHABLE_KEY}"
 
       - name: Créer le dépôt d’images si nécessaire
         run: |
@@ -53,11 +47,12 @@ jobs:
             --location="${REGION}" \
             --description="Images de production SILO"
 
+      - name: Vérifier les secrets de production
+        run: |
+          gcloud secrets versions describe latest --secret=DATABASE_URL >/dev/null
+          gcloud secrets versions describe latest --secret=CLERK_SECRET_KEY >/dev/null
+
       - name: Construire et publier l’image
-        env:
-          VITE_CLERK_PUBLISHABLE_KEY: ${{ vars.VITE_CLERK_PUBLISHABLE_KEY }}
-          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
-          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY }}
         run: |
           docker build \
             --build-arg="VITE_CLERK_PUBLISHABLE_KEY=${VITE_CLERK_PUBLISHABLE_KEY}" \
