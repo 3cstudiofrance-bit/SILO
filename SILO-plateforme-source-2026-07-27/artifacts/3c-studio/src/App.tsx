@@ -2,7 +2,7 @@ import { Switch, Route, Router as WouterRouter, useLocation, Redirect } from "wo
 import { QueryClient, QueryClientProvider, useQueryClient } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { ClerkProvider, SignIn, SignUp, useClerk, useUser } from "@clerk/react";
+import { ClerkProvider, SignIn, SignUp, useAuth, useClerk, useUser } from "@clerk/react";
 import { publishableKeyFromHost } from "@clerk/react/internal";
 import { frFR } from "@clerk/localizations";
 import { dark } from "@clerk/themes";
@@ -130,6 +130,18 @@ const clerkAppearance = {
     userPreviewMainIdentifier: "!text-[#EFF4FF] !font-semibold",
     userPreviewSecondaryIdentifier: "!text-[#94A3B8]",
     userButtonTrigger: "focus:shadow-none",
+    modalContent: "!bg-[#182848] !text-[#EFF4FF]",
+    navbar: "!bg-[#13213F] !border-r !border-white/10",
+    navbarButton: "!text-slate-300 hover:!bg-white/10 hover:!text-white",
+    navbarButtonIcon: "!text-slate-400",
+    pageScrollBox: "!bg-[#182848]",
+    profileSection: "!border-white/10",
+    profileSectionTitleText: "!text-slate-300 !opacity-100",
+    profileSectionContent: "!text-white !opacity-100",
+    formFieldLabel: "!text-slate-200 !opacity-100",
+    formFieldInput: "!bg-[#0F1C38] !border-white/15 !text-white",
+    formButtonReset: "!text-blue-300 hover:!text-blue-200",
+    badge: "!bg-white/10 !text-slate-200",
   },
 };
 
@@ -207,6 +219,57 @@ function ClerkQueryClientCacheInvalidator() {
     });
     return unsubscribe;
   }, [addListener, qc]);
+
+  return null;
+}
+
+type ProtectedSpace = "admin" | "pm" | "partner" | "client";
+let lastLoggedSpace: { userId: string; space: ProtectedSpace } | null = null;
+
+function spaceFromPath(path: string): ProtectedSpace | null {
+  if (path.startsWith("/admin")) return "admin";
+  if (path.startsWith("/pm")) return "pm";
+  if (path.startsWith("/partner")) return "partner";
+  if (path.startsWith("/dashboard")) return "client";
+  return null;
+}
+
+function SpaceAccessLogger() {
+  const [location] = useLocation();
+  const { isSignedIn, userId, getToken } = useAuth();
+  const { role, isLoading } = useAppRole();
+
+  useEffect(() => {
+    const space = spaceFromPath(location);
+    if (!isSignedIn || !userId || isLoading || !space) return;
+    if (role !== "admin" && role !== space) return;
+    if (lastLoggedSpace?.userId === userId && lastLoggedSpace.space === space) return;
+
+    lastLoggedSpace = { userId, space };
+    void getToken()
+      .then((token) =>
+        fetch("/api/auth/space-access", {
+          method: "POST",
+          credentials: "same-origin",
+          headers: {
+            "Content-Type": "application/json",
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+          body: JSON.stringify({ space, path: location }),
+          keepalive: true,
+        }),
+      )
+      .then((response) => {
+        if (!response.ok) {
+          lastLoggedSpace = null;
+          console.warn(`[SILO] Journal d'accès indisponible (HTTP ${response.status})`);
+        }
+      })
+      .catch((error) => {
+        lastLoggedSpace = null;
+        console.warn("[SILO] Journal d'accès indisponible", error);
+      });
+  }, [getToken, isLoading, isSignedIn, location, role, userId]);
 
   return null;
 }
@@ -371,6 +434,7 @@ function ClerkProviderWithRoutes() {
       <QueryClientProvider client={queryClient}>
         <ClerkQueryClientCacheInvalidator />
         <RoleProvider>
+          <SpaceAccessLogger />
           <Router />
         </RoleProvider>
         <Toaster />
