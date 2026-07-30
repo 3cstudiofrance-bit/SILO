@@ -16,9 +16,11 @@ import partnersRouter from "./partners";
 import usersRouter from "./users";
 import reviewsRouter from "./reviews";
 import projectFilesRouter from "./project-files";
+import authRouter from "./auth";
 
 const router: IRouter = Router();
 
+router.use(authRouter);
 router.use(healthRouter);
 router.use(contactsRouter);
 router.use(projectsRouter);
