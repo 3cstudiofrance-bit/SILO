@@ -12,6 +12,7 @@ import { useState } from "react";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
 import { SiloLogo } from "@/components/SiloLogo";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { useAppRole, type AppRole } from "@/contexts/RoleContext";
 
 // ── NAV PAR ESPACE ─────────────────────────────────────────────
 
@@ -118,10 +119,14 @@ function NavSection({ label, icon: Icon }: { label: string; icon: React.ElementT
 
 type Space = "client" | "pm" | "partner" | "admin";
 
-function detectSpace(role?: string, path = ""): Space {
-  if (role === "admin" || path.startsWith("/admin")) return "admin";
-  if (role === "pm" || role === "project_manager" || path.startsWith("/pm")) return "pm";
-  if (role === "partner" || role === "agency" || path.startsWith("/partner")) return "partner";
+function detectSpace(role: AppRole, path = ""): Space {
+  if (path.startsWith("/admin")) return "admin";
+  if (path.startsWith("/pm")) return "pm";
+  if (path.startsWith("/partner")) return "partner";
+  if (path.startsWith("/dashboard")) return "client";
+  if (role === "admin") return "admin";
+  if (role === "pm") return "pm";
+  if (role === "partner") return "partner";
   return "client";
 }
 
@@ -132,13 +137,20 @@ const SPACE_LABELS: Record<Space, { label: string; color: string }> = {
   admin: { label: "Administration", color: "text-primary" },
 };
 
+const adminSpaces = [
+  { href: "/admin", label: "Admin", icon: Shield, space: "admin" as const },
+  { href: "/pm", label: "PM", icon: Briefcase, space: "pm" as const },
+  { href: "/partner", label: "Agence", icon: Building2, space: "partner" as const },
+  { href: "/dashboard", label: "Client", icon: User, space: "client" as const },
+];
+
 // ── SIDEBAR ────────────────────────────────────────────────────
 
 function Sidebar({ onClose }: { onClose?: () => void }) {
   const { user, isLoaded } = useUser();
   const { signOut } = useClerk();
+  const { role } = useAppRole();
   const [location] = useLocation();
-  const role = user?.publicMetadata?.role as string | undefined;
   const space = detectSpace(role, location);
   const spaceInfo = SPACE_LABELS[space];
 
@@ -156,6 +168,31 @@ function Sidebar({ onClose }: { onClose?: () => void }) {
           </button>
         )}
       </div>
+
+      {role === "admin" && (
+        <div className="border-b border-border p-3">
+          <p className="px-2 pb-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground/70">
+            Changer d’espace
+          </p>
+          <div className="grid grid-cols-2 gap-1.5">
+            {adminSpaces.map(({ href, label, icon: Icon, space: targetSpace }) => (
+              <Link key={href} href={href}>
+                <span
+                  className={cn(
+                    "flex items-center gap-2 rounded-lg border px-2.5 py-2 text-xs font-medium transition-colors",
+                    space === targetSpace
+                      ? "border-primary/30 bg-primary/10 text-primary"
+                      : "border-border text-muted-foreground hover:bg-secondary hover:text-foreground",
+                  )}
+                >
+                  <Icon className="h-3.5 w-3.5" />
+                  {label}
+                </span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Navigation */}
       <nav className="p-3 flex-1 overflow-y-auto space-y-0.5">
