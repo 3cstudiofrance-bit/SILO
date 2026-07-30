@@ -2,10 +2,11 @@ import { Link, useLocation } from "wouter";
 import { useUser, UserButton, useClerk } from "@clerk/react";
 import {
   Briefcase, LayoutDashboard, Settings, LogOut, FileText, HardDrive,
-  Upload, PenLine, MessageSquare, CreditCard, Star, Rss,
+  Upload, PenLine, MessageSquare, CreditCard, Star, Rss, Shield, User,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SiloLogo } from "@/components/SiloLogo";
+import { useAppRole } from "@/contexts/RoleContext";
 
 const navItems = [
   { href: "/partner", icon: LayoutDashboard, label: "Tableau de bord" },
@@ -25,6 +26,7 @@ export function PartnerLayout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
   const { user } = useUser();
   const { signOut } = useClerk();
+  const { role } = useAppRole();
 
   return (
     <div className="min-h-screen bg-background flex">
@@ -35,6 +37,26 @@ export function PartnerLayout({ children }: { children: React.ReactNode }) {
             <p className="text-[10px] text-muted-foreground">Espace partenaire</p>
           </Link>
         </div>
+
+        {role === "admin" && (
+          <div className="grid grid-cols-3 gap-1.5 border-b border-border p-3">
+            <Link href="/admin">
+              <span className="flex items-center justify-center gap-1.5 rounded-lg border border-border px-2 py-2 text-[11px] text-muted-foreground hover:bg-muted/50 hover:text-foreground">
+                <Shield className="h-3.5 w-3.5" /> Admin
+              </span>
+            </Link>
+            <Link href="/pm">
+              <span className="flex items-center justify-center gap-1.5 rounded-lg border border-border px-2 py-2 text-[11px] text-muted-foreground hover:bg-muted/50 hover:text-foreground">
+                <Briefcase className="h-3.5 w-3.5" /> PM
+              </span>
+            </Link>
+            <Link href="/dashboard">
+              <span className="flex items-center justify-center gap-1.5 rounded-lg border border-border px-2 py-2 text-[11px] text-muted-foreground hover:bg-muted/50 hover:text-foreground">
+                <User className="h-3.5 w-3.5" /> Client
+              </span>
+            </Link>
+          </div>
+        )}
 
         <nav className="flex-1 px-3 py-4 space-y-0.5">
           {navItems.map((item) => {
