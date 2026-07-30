@@ -5,7 +5,7 @@ import {
   partnerMissionsTable,
   projectsTable,
 } from "@workspace/db";
-import { getRoleAsync, normalizeRole } from "../lib/roles";
+import { getRoleAsync, roleFromClerkUser } from "../lib/roles";
 
 const router: IRouter = Router();
 
@@ -57,10 +57,7 @@ router.get("/users", requireAuth(), async (req, res) => {
         id: user.id,
         name,
         email,
-        role:
-          normalizeRole(
-            (user.publicMetadata as Record<string, unknown>)?.role,
-          ) ?? "client",
+        role: roleFromClerkUser(user),
         status: user.banned || user.locked ? "suspended" : "active",
         joinedAt: new Date(user.createdAt).toISOString(),
         projects: projectCounts.get(user.id) ?? 0,
