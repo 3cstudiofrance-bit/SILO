@@ -11,6 +11,7 @@ permissions:
   id-token: write
 
 env:
+  # Allowlist serveur : ce compte reçoit le sélecteur Admin / PM / Agence.
   PROJECT_ID: silo-88b1c
   REGION: europe-west1
   SERVICE: silo
