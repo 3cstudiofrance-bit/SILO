@@ -7,7 +7,7 @@ import { publishableKeyFromHost } from "@clerk/react/internal";
 import { frFR } from "@clerk/localizations";
 import { dark } from "@clerk/themes";
 import { useEffect, useRef } from "react";
-import { ProfileProvider } from "@/contexts/ProfileContext";
+import { RoleProvider, useAppRole } from "@/contexts/RoleContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { SiloLogo } from "@/components/SiloLogo";
 import NotFound from "@/pages/not-found";
@@ -212,13 +212,13 @@ function ClerkQueryClientCacheInvalidator() {
 }
 
 function RoleRedirect() {
-  const { user, isLoaded, isSignedIn } = useUser();
-  if (!isLoaded) return <LoadingScreen />;
+  const { isLoaded, isSignedIn } = useUser();
+  const { role, isLoading } = useAppRole();
+  if (!isLoaded || isLoading) return <LoadingScreen />;
   if (!isSignedIn) return <Redirect to="/sign-in" />;
-  const role = user?.publicMetadata?.role as string | undefined;
   if (role === "admin") return <Redirect to="/admin" />;
-  if (role === "project_manager" || role === "pm") return <Redirect to="/pm" />;
-  if (role === "agency" || role === "partner") return <Redirect to="/partner" />;
+  if (role === "pm") return <Redirect to="/pm" />;
+  if (role === "partner") return <Redirect to="/partner" />;
   return <Redirect to="/dashboard" />;
 }
 
@@ -237,38 +237,38 @@ function LoadingScreen() {
  * Tout autre rôle est redirigé vers son propre espace via /accueil.
  */
 function ClientRoute({ component: Component }: { component: React.ComponentType }) {
-  const { user, isLoaded, isSignedIn } = useUser();
-  if (!isLoaded) return <LoadingScreen />;
+  const { isLoaded, isSignedIn } = useUser();
+  const { role, isLoading } = useAppRole();
+  if (!isLoaded || isLoading) return <LoadingScreen />;
   if (!isSignedIn) return <Redirect to="/sign-in" />;
-  const role = user?.publicMetadata?.role as string | undefined;
-  if (role && role !== "client" && role !== "admin") return <Redirect to="/accueil" />;
+  if (role !== "client" && role !== "admin") return <Redirect to="/accueil" />;
   return <Component />;
 }
 
 function AdminRoute({ component: Component }: { component: React.ComponentType }) {
-  const { user, isLoaded, isSignedIn } = useUser();
-  if (!isLoaded) return <LoadingScreen />;
+  const { isLoaded, isSignedIn } = useUser();
+  const { role, isLoading } = useAppRole();
+  if (!isLoaded || isLoading) return <LoadingScreen />;
   if (!isSignedIn) return <Redirect to="/sign-in" />;
-  const isAdmin = user?.publicMetadata?.role === "admin";
-  if (!isAdmin) return <Redirect to="/accueil" />;
+  if (role !== "admin") return <Redirect to="/accueil" />;
   return <Component />;
 }
 
 function PartnerRoute({ component: Component }: { component: React.ComponentType }) {
-  const { user, isLoaded, isSignedIn } = useUser();
-  if (!isLoaded) return <LoadingScreen />;
+  const { isLoaded, isSignedIn } = useUser();
+  const { role, isLoading } = useAppRole();
+  if (!isLoaded || isLoading) return <LoadingScreen />;
   if (!isSignedIn) return <Redirect to="/sign-in" />;
-  const role = user?.publicMetadata?.role as string | undefined;
-  if (role !== "partner" && role !== "agency" && role !== "admin") return <Redirect to="/accueil" />;
+  if (role !== "partner" && role !== "admin") return <Redirect to="/accueil" />;
   return <Component />;
 }
 
 function PMRoute({ component: Component }: { component: React.ComponentType }) {
-  const { user, isLoaded, isSignedIn } = useUser();
-  if (!isLoaded) return <LoadingScreen />;
+  const { isLoaded, isSignedIn } = useUser();
+  const { role, isLoading } = useAppRole();
+  if (!isLoaded || isLoading) return <LoadingScreen />;
   if (!isSignedIn) return <Redirect to="/sign-in" />;
-  const role = user?.publicMetadata?.role as string | undefined;
-  if (role !== "pm" && role !== "project_manager" && role !== "admin") return <Redirect to="/accueil" />;
+  if (role !== "pm" && role !== "admin") return <Redirect to="/accueil" />;
   return <Component />;
 }
 
@@ -370,9 +370,9 @@ function ClerkProviderWithRoutes() {
     >
       <QueryClientProvider client={queryClient}>
         <ClerkQueryClientCacheInvalidator />
-        <ProfileProvider>
+        <RoleProvider>
           <Router />
-        </ProfileProvider>
+        </RoleProvider>
         <Toaster />
       </QueryClientProvider>
     </ClerkProvider>
