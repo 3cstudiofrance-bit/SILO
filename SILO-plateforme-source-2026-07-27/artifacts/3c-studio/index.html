@@ -36,11 +36,19 @@
         }
 
         window.addEventListener("error", function (event) {
-          showStartupError(event.message || "Erreur JavaScript inconnue");
+          var message = event.message || "Erreur JavaScript inconnue";
+          console.error("[SILO] Erreur JavaScript:", message);
+          if (document.documentElement.dataset.siloMounted !== "true") {
+            showStartupError(message);
+          }
         });
         window.addEventListener("unhandledrejection", function (event) {
           var reason = event.reason;
-          showStartupError(reason && reason.message ? reason.message : String(reason));
+          var message = reason && reason.message ? reason.message : String(reason);
+          console.error("[SILO] Promesse rejetée:", message);
+          if (document.documentElement.dataset.siloMounted !== "true") {
+            showStartupError(message);
+          }
         });
       })();
     </script>
