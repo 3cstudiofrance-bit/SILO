@@ -18,6 +18,7 @@ env:
   VITE_CLERK_PUBLISHABLE_KEY: pk_test_bmV3LWduYXQtNzUuY2xlcmsuYWNjb3VudHMuZGV2JA
   VITE_SUPABASE_URL: https://kchnurxsqpynshyfwusn.supabase.co
   VITE_SUPABASE_PUBLISHABLE_KEY: sb_publishable_dSzjEcdmUqFlcnorFebqLQ_rn4xlQYu
+  ADMIN_EMAILS: 3cstudiofrance@gmail.com
 
 jobs:
   deploy:
@@ -72,7 +73,7 @@ jobs:
             --max=5 \
             --memory=1Gi \
             --cpu=1 \
-            --set-env-vars="^@^NODE_ENV=production@APP_BASE_URL=https://silovisuel.com@CORS_ALLOWED_ORIGINS=https://silovisuel.com,https://www.silovisuel.com" \
+            --set-env-vars="^@^NODE_ENV=production@APP_BASE_URL=https://silovisuel.com@CORS_ALLOWED_ORIGINS=https://silovisuel.com,https://www.silovisuel.com@ADMIN_EMAILS=${ADMIN_EMAILS}" \
             --set-secrets="DATABASE_URL=DATABASE_URL:latest,CLERK_SECRET_KEY=CLERK_SECRET_KEY:latest"
 
       - name: Vérifier le service
