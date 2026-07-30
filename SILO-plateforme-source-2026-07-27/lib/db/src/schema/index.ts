@@ -12,3 +12,4 @@ export * from "./advisors";
 export * from "./partners";
 export * from "./reviews";
 export * from "./project-files";
+export * from "./space-access-logs";
