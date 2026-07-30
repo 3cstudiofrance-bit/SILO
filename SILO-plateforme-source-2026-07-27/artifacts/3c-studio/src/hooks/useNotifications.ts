@@ -11,18 +11,32 @@ import type { Notification } from "@/types";
 
 export function useNotifications() {
   const { user, isLoaded } = useUser();
+  const userId = user?.id ?? null;
+  const notificationsEnabled =
+    import.meta.env.VITE_ENABLE_SUPABASE_NOTIFICATIONS === "true";
   const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(notificationsEnabled);
 
   const unreadCount = notifications.filter(n => !n.isRead).length;
 
   const load = useCallback(async () => {
-    if (!isLoaded || !user) return;
+    if (!notificationsEnabled || !isLoaded || !userId) {
+      setNotifications([]);
+      setIsLoading(false);
+      return;
+    }
+
     setIsLoading(true);
-    const data = await listNotifications(user.id);
-    setNotifications(data);
-    setIsLoading(false);
-  }, [isLoaded, user]);
+    try {
+      const data = await listNotifications(userId);
+      setNotifications(data);
+    } catch (error) {
+      console.error("[notifications] Chargement impossible", error);
+      setNotifications([]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [isLoaded, notificationsEnabled, userId]);
 
   useEffect(() => {
     load();
@@ -30,12 +44,12 @@ export function useNotifications() {
 
   // Abonnement Realtime
   useEffect(() => {
-    if (!user || !isSupabaseConfigured) return;
-    const unsubscribe = subscribeToNotifications(user.id, (newNotif) => {
+    if (!notificationsEnabled || !userId || !isSupabaseConfigured) return;
+    const unsubscribe = subscribeToNotifications(userId, (newNotif) => {
       setNotifications(prev => [newNotif, ...prev]);
     });
     return unsubscribe;
-  }, [user]);
+  }, [notificationsEnabled, userId]);
 
   const markRead = useCallback(async (id: string) => {
     await markNotificationRead(id);
@@ -45,12 +59,12 @@ export function useNotifications() {
   }, []);
 
   const markAllAsRead = useCallback(async () => {
-    if (!user) return;
-    await markAllRead(user.id);
+    if (!notificationsEnabled || !userId) return;
+    await markAllRead(userId);
     setNotifications(prev =>
       prev.map(n => ({ ...n, isRead: true, readAt: new Date().toISOString() }))
     );
-  }, [user]);
+  }, [notificationsEnabled, userId]);
 
   return { notifications, unreadCount, isLoading, markRead, markAllAsRead, reload: load };
 }
