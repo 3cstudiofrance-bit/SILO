@@ -8,6 +8,13 @@
       "when": 1785362183031,
       "tag": "20260729215623_initial_platform_schema",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1785415207617,
+      "tag": "0001_space_access_logs",
+      "breakpoints": true
     }
   ]
 }
