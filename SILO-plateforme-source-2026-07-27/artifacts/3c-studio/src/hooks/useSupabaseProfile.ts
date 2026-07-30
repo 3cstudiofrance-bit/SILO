@@ -8,46 +8,79 @@ import type { UserProfile } from "@/types";
 
 export function useSupabaseProfile() {
   const { user, isLoaded, isSignedIn } = useUser();
+  const profileSyncEnabled =
+    import.meta.env.VITE_ENABLE_SUPABASE_PROFILE_SYNC === "true";
+  const userId = user?.id ?? null;
+  const email = user?.primaryEmailAddress?.emailAddress ?? "";
+  const firstName = user?.firstName ?? undefined;
+  const lastName = user?.lastName ?? undefined;
+  const avatarUrl = user?.imageUrl ?? undefined;
+  const role = user?.publicMetadata?.role as UserProfile["role"] | undefined;
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [isSyncing, setIsSyncing] = useState(false);
 
   useEffect(() => {
-    if (!isLoaded || !isSignedIn || !user) return;
+    if (!profileSyncEnabled || !isLoaded || !isSignedIn || !userId) {
+      setIsSyncing(false);
+      return;
+    }
+
+    const activeUserId = userId;
+    let cancelled = false;
 
     async function sync() {
       setIsSyncing(true);
-      // Essaie d'abord de récupérer le profil existant
-      const existing = await getUserProfile(user!.id);
-      if (existing) {
-        setProfile(existing);
-        setIsSyncing(false);
-        return;
+      try {
+        const existing = await getUserProfile(activeUserId);
+        if (cancelled) return;
+        if (existing) {
+          setProfile(existing);
+          return;
+        }
+
+        const synced = await syncUserProfile({
+          clerkUserId: activeUserId,
+          email,
+          firstName,
+          lastName,
+          avatarUrl,
+          role: role ?? "client",
+        });
+
+        if (!cancelled) setProfile(synced);
+      } catch (error) {
+        console.error("[profile] Synchronisation impossible", error);
+        if (!cancelled) setProfile(null);
+      } finally {
+        if (!cancelled) setIsSyncing(false);
       }
-
-      // Crée/met à jour le profil depuis Clerk
-      const synced = await syncUserProfile({
-        clerkUserId: user!.id,
-        email: user!.primaryEmailAddress?.emailAddress ?? "",
-        firstName: user!.firstName ?? undefined,
-        lastName: user!.lastName ?? undefined,
-        avatarUrl: user!.imageUrl ?? undefined,
-        role: (user!.publicMetadata?.role as UserProfile["role"]) ?? "client",
-      });
-
-      setProfile(synced);
-      setIsSyncing(false);
     }
 
-    sync();
+    void sync();
 
     // Marquer en ligne
-    setOnlineStatus(user.id, true);
+    void setOnlineStatus(activeUserId, true);
 
     // Marquer hors ligne à la fermeture
-    const handleUnload = () => setOnlineStatus(user!.id, false);
+    const handleUnload = () => {
+      void setOnlineStatus(activeUserId, false);
+    };
     window.addEventListener("beforeunload", handleUnload);
-    return () => window.removeEventListener("beforeunload", handleUnload);
-  }, [isLoaded, isSignedIn, user]);
+    return () => {
+      cancelled = true;
+      window.removeEventListener("beforeunload", handleUnload);
+    };
+  }, [
+    avatarUrl,
+    email,
+    firstName,
+    isLoaded,
+    isSignedIn,
+    lastName,
+    profileSyncEnabled,
+    role,
+    userId,
+  ]);
 
   return { profile, isSyncing };
 }
