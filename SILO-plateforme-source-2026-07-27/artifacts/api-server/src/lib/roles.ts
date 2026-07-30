@@ -3,6 +3,46 @@ import { clerkClient, getAuth } from "@clerk/express";
 
 export type Role = "admin" | "pm" | "partner" | "client";
 
+type ClerkUserLike = {
+  publicMetadata?: unknown;
+  primaryEmailAddress?: { emailAddress?: string | null } | null;
+  emailAddresses?: ReadonlyArray<{ emailAddress?: string | null }>;
+};
+
+function configuredAdminEmails(): Set<string> {
+  return new Set(
+    (process.env.ADMIN_EMAILS ?? "")
+      .split(",")
+      .map((email) => email.trim().toLowerCase())
+      .filter(Boolean),
+  );
+}
+
+export function isConfiguredAdminEmail(email: unknown): boolean {
+  return (
+    typeof email === "string" &&
+    configuredAdminEmails().has(email.trim().toLowerCase())
+  );
+}
+
+export function getClerkUserEmail(user: ClerkUserLike): string | null {
+  return (
+    user.primaryEmailAddress?.emailAddress ??
+    user.emailAddresses?.[0]?.emailAddress ??
+    null
+  );
+}
+
+export function roleFromClerkUser(user: ClerkUserLike): Role {
+  if (isConfiguredAdminEmail(getClerkUserEmail(user))) return "admin";
+
+  const metadata =
+    user.publicMetadata && typeof user.publicMetadata === "object"
+      ? (user.publicMetadata as Record<string, unknown>)
+      : {};
+  return normalizeRole(metadata.role) ?? "client";
+}
+
 export function normalizeRole(role: unknown): Role | null {
   if (role === "admin" || role === "pm" || role === "partner" || role === "client") return role;
   if (role === "project_manager") return "pm";
@@ -32,8 +72,14 @@ const ROLE_CACHE_TTL_MS = 60_000;
 
 export async function getRoleAsync(req: Request): Promise<Role> {
   const claims = sessionClaims(req);
+  const claimEmail = claims?.email ?? claims?.primaryEmail;
+  if (isConfiguredAdminEmail(claimEmail)) return "admin";
+
   const fromClaims = normalizeRole(claims?.publicMetadata?.role ?? claims?.metadata?.role);
-  if (fromClaims) return fromClaims;
+  // Les rôles internes explicites peuvent être utilisés directement. Pour un
+  // rôle client (ou absent), l'API Clerk reste consultée afin que la liste
+  // ADMIN_EMAILS puisse promouvoir un compte sans dépendre des metadata Clerk.
+  if (fromClaims && fromClaims !== "client") return fromClaims;
 
   const userId = getUserId(req);
   if (!userId) return "client";
@@ -43,7 +89,7 @@ export async function getRoleAsync(req: Request): Promise<Role> {
 
   try {
     const user = await clerkClient.users.getUser(userId);
-    const role = normalizeRole((user.publicMetadata as any)?.role) ?? "client";
+    const role = roleFromClerkUser(user);
     roleCache.set(userId, { role, expires: Date.now() + ROLE_CACHE_TTL_MS });
     return role;
   } catch {
@@ -86,4 +132,25 @@ export async function getUserNameAsync(req: Request): Promise<string | null> {
 export function getUserEmail(req: Request): string | null {
   const claims = sessionClaims(req);
   return claims?.email ?? claims?.primaryEmail ?? null;
+}
+
+const emailCache = new Map<string, { email: string | null; expires: number }>();
+
+export async function getUserEmailAsync(req: Request): Promise<string | null> {
+  const fromClaims = getUserEmail(req);
+  if (fromClaims) return fromClaims;
+
+  const userId = getUserId(req);
+  if (!userId) return null;
+  const cached = emailCache.get(userId);
+  if (cached && cached.expires > Date.now()) return cached.email;
+
+  try {
+    const user = await clerkClient.users.getUser(userId);
+    const email = getClerkUserEmail(user);
+    emailCache.set(userId, { email, expires: Date.now() + ROLE_CACHE_TTL_MS });
+    return email;
+  } catch {
+    return null;
+  }
 }
