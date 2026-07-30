@@ -43,6 +43,8 @@ class AppErrorBoundary extends Component<
   }
 }
 
+document.documentElement.dataset.siloMounted = "true";
+
 createRoot(document.getElementById("root")!).render(
   <AppErrorBoundary>
     <App />
