@@ -1,6 +1,6 @@
 import { Link, useLocation } from "wouter";
 import { useUser, UserButton, SignInButton, useClerk } from "@clerk/react";
-import { Menu, X, LogOut } from "lucide-react";
+import { ArrowUpRight, Menu, X, LogOut } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { SiloWordmark } from "@/components/SiloLogo";
@@ -22,20 +22,20 @@ export function PublicLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
-      <header className="fixed top-0 left-0 right-0 z-50 border-b border-border/50 bg-background/90 backdrop-blur-md">
-        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+      <header className="fixed top-0 left-0 right-0 z-50 border-b border-[#0a1630]/15 bg-[#f2f0ea]/95 text-[#0a1630] backdrop-blur-md">
+        <div className="mx-auto flex h-20 max-w-[1760px] items-center justify-between px-4 sm:px-6 lg:px-10">
           <Link href="/">
             <SiloWordmark className="text-lg" />
           </Link>
 
-          <nav className="hidden lg:flex items-center gap-8">
+          <nav className="hidden lg:flex items-center gap-9">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
                 className={cn(
-                  "text-sm font-medium transition-colors hover:text-foreground",
-                  location === link.href ? "text-foreground" : "text-muted-foreground"
+                  "text-xs font-semibold uppercase tracking-[0.16em] transition-opacity hover:opacity-55",
+                  location === link.href ? "opacity-100" : "opacity-55"
                 )}
               >
                 {link.label}
@@ -43,12 +43,12 @@ export function PublicLayout({ children }: { children: React.ReactNode }) {
             ))}
           </nav>
 
-          <div className="hidden lg:flex items-center gap-3">
-            <ThemeToggle />
+          <div className="hidden lg:flex items-center gap-4">
+            <ThemeToggle className="flex h-10 w-10 items-center justify-center rounded-full border border-[#0a1630]/20 text-[#0a1630] transition-colors hover:bg-[#0a1630] hover:text-white" />
             {isLoaded && (
               isSignedIn ? (
                 <div className="flex items-center gap-3">
-                  <Link href="/accueil" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+                  <Link href="/accueil" className="text-xs font-semibold uppercase tracking-[0.14em] opacity-65 transition-opacity hover:opacity-100">
                     Mon espace
                   </Link>
                   <UserButton />
@@ -56,7 +56,7 @@ export function PublicLayout({ children }: { children: React.ReactNode }) {
               ) : (
                 <div className="flex items-center gap-3">
                   <SignInButton mode="redirect">
-                    <button className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+                    <button className="text-xs font-semibold uppercase tracking-[0.14em] opacity-65 transition-opacity hover:opacity-100">
                       Connexion
                     </button>
                   </SignInButton>
@@ -64,9 +64,9 @@ export function PublicLayout({ children }: { children: React.ReactNode }) {
                     href={TALLY_CLIENT_URL}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="px-4 py-2 rounded-full bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors"
+                    className="group inline-flex min-h-11 items-center gap-3 rounded-full bg-[#0a1630] px-5 text-xs font-semibold uppercase tracking-[0.08em] text-white transition-colors hover:bg-[#2367e8]"
                   >
-                    Créer un compte client
+                    Lancer un projet <ArrowUpRight className="h-4 w-4" />
                   </a>
                 </div>
               )
@@ -74,10 +74,12 @@ export function PublicLayout({ children }: { children: React.ReactNode }) {
           </div>
 
           <div className="lg:hidden flex items-center gap-2">
-            <ThemeToggle />
+            <ThemeToggle className="flex h-10 w-10 items-center justify-center rounded-full border border-[#0a1630]/20 text-[#0a1630]" />
             <button
-              className="text-muted-foreground hover:text-foreground"
+              className="flex h-10 w-10 items-center justify-center rounded-full border border-[#0a1630]/20 text-[#0a1630]"
               onClick={() => setMenuOpen(!menuOpen)}
+              aria-label={menuOpen ? "Fermer le menu" : "Ouvrir le menu"}
+              aria-expanded={menuOpen}
             >
               {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
@@ -85,13 +87,13 @@ export function PublicLayout({ children }: { children: React.ReactNode }) {
         </div>
 
         {menuOpen && (
-          <div className="lg:hidden border-t border-border bg-background">
-            <div className="px-6 py-4 space-y-4">
+          <div className="border-t border-[#0a1630]/15 bg-[#f2f0ea] text-[#0a1630] lg:hidden">
+            <div className="space-y-5 px-6 py-6">
               {navLinks.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="block text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                  className="block text-sm font-semibold uppercase tracking-[0.12em] opacity-65 transition-opacity hover:opacity-100"
                   onClick={() => setMenuOpen(false)}
                 >
                   {link.label}
@@ -101,7 +103,7 @@ export function PublicLayout({ children }: { children: React.ReactNode }) {
                 href={TALLY_CLIENT_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="block text-sm font-medium text-primary"
+                className="block text-sm font-semibold uppercase tracking-[0.12em] text-[#2367e8]"
                 onClick={() => setMenuOpen(false)}
               >
                 Créer un compte client
@@ -110,13 +112,20 @@ export function PublicLayout({ children }: { children: React.ReactNode }) {
                 href={TALLY_PARTNER_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="block text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                className="block text-sm font-semibold uppercase tracking-[0.12em] opacity-65 transition-opacity hover:opacity-100"
                 onClick={() => setMenuOpen(false)}
               >
                 Devenir partenaire
               </a>
+              {isLoaded && !isSignedIn && (
+                <SignInButton mode="redirect">
+                  <button className="block text-sm font-semibold uppercase tracking-[0.12em] opacity-65 transition-opacity hover:opacity-100">
+                    Connexion
+                  </button>
+                </SignInButton>
+              )}
               {isSignedIn && (
-                <Link href="/accueil" className="block text-sm font-medium text-primary" onClick={() => setMenuOpen(false)}>
+                <Link href="/accueil" className="block text-sm font-semibold uppercase tracking-[0.12em] text-[#2367e8]" onClick={() => setMenuOpen(false)}>
                   Mon espace
                 </Link>
               )}
@@ -134,40 +143,40 @@ export function PublicLayout({ children }: { children: React.ReactNode }) {
         )}
       </header>
 
-      <main className="flex-1 pt-16">
+      <main className="flex-1 pt-20">
         {children}
       </main>
 
-      <footer className="border-t border-border mt-24">
-        <div className="max-w-7xl mx-auto px-6 py-16">
+      <footer className="border-t border-white/15 bg-[#071126] text-white">
+        <div className="mx-auto max-w-[1680px] px-6 py-16 lg:px-10 lg:py-20">
           <div className="grid md:grid-cols-4 gap-12">
             <div className="md:col-span-2">
               <div className="mb-4">
                 <SiloWordmark className="text-lg" />
               </div>
-              <p className="text-sm text-muted-foreground leading-relaxed max-w-xs">
+              <p className="max-w-sm text-sm leading-relaxed text-white/55">
                 Silo met en relation les clients avec les meilleures agences et professionnels de l'audiovisuel, avec un accompagnement dédié de bout en bout.
               </p>
             </div>
             <div>
-              <h4 className="text-sm font-semibold mb-4 text-foreground">Navigation</h4>
+              <h4 className="mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-[#f3bd13]">Navigation</h4>
               <ul className="space-y-2.5">
                 {navLinks.map((l) => (
-                  <li key={l.href}><Link href={l.href} className="text-sm text-muted-foreground hover:text-foreground transition-colors">{l.label}</Link></li>
+                  <li key={l.href}><Link href={l.href} className="text-sm text-white/55 transition-colors hover:text-white">{l.label}</Link></li>
                 ))}
               </ul>
             </div>
             <div>
-              <h4 className="text-sm font-semibold mb-4 text-foreground">Nous rejoindre</h4>
-              <ul className="space-y-2.5 text-sm text-muted-foreground">
-                <li><a href={TALLY_CLIENT_URL} target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">Créer un compte client</a></li>
-                <li><a href={TALLY_PARTNER_URL} target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">Devenir partenaire</a></li>
+              <h4 className="mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-[#f3bd13]">Nous rejoindre</h4>
+              <ul className="space-y-2.5 text-sm text-white/55">
+                <li><a href={TALLY_CLIENT_URL} target="_blank" rel="noopener noreferrer" className="transition-colors hover:text-white">Créer un compte client</a></li>
+                <li><a href={TALLY_PARTNER_URL} target="_blank" rel="noopener noreferrer" className="transition-colors hover:text-white">Devenir partenaire</a></li>
               </ul>
             </div>
           </div>
-          <div className="border-t border-border mt-12 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-xs text-muted-foreground">© {new Date().getFullYear()} Silo. Tous droits réservés.</p>
-            <p className="text-xs text-muted-foreground">La bonne équipe pour chaque projet vidéo.</p>
+          <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-white/15 pt-8 md:flex-row">
+            <p className="text-xs text-white/40">© {new Date().getFullYear()} SILO. Tous droits réservés.</p>
+            <p className="text-xs uppercase tracking-[0.14em] text-white/40">La bonne équipe pour chaque projet vidéo.</p>
           </div>
         </div>
       </footer>
