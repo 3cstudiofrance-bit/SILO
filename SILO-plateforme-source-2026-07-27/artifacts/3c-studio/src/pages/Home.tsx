@@ -1,174 +1,204 @@
 import { PublicLayout, TALLY_CLIENT_URL, TALLY_PARTNER_URL } from "@/components/PublicLayout";
+import { PLAYLIST_URL, REALISATEUR, realisations } from "@/lib/realisations-data";
+import { ArrowRight, ArrowUpRight, Check, Play } from "lucide-react";
 import { Link } from "wouter";
-import {
-  ArrowRight, Handshake, ShieldCheck, Clapperboard, Users, MessageSquare, CheckCircle
-} from "lucide-react";
-
-const pillars = [
-  {
-    icon: Handshake,
-    title: "Mise en relation sur mesure",
-    description: "Silo sélectionne pour chaque projet l'agence ou le professionnel indépendant le plus adapté à votre besoin, votre budget et vos délais.",
-  },
-  {
-    icon: Users,
-    title: "Un conseiller dédié",
-    description: "Un chef de projet Silo vous accompagne de la commande à la livraison : un interlocuteur unique qui coordonne tout pour vous.",
-  },
-  {
-    icon: ShieldCheck,
-    title: "Qualité et suivi garantis",
-    description: "Partenaires vérifiés, délais suivis, validation à chaque étape. Vous gardez la maîtrise de votre projet du brief à la livraison.",
-  },
-];
 
 const steps = [
-  { n: "01", title: "Votre demande", desc: "Décrivez votre besoin en quelques minutes." },
-  { n: "02", title: "Mise en relation", desc: "Silo confie votre projet au bon créatif." },
-  { n: "03", title: "Suivi dédié", desc: "Votre conseiller Silo coordonne la production." },
-  { n: "04", title: "Livraison", desc: "Vous validez et recevez vos fichiers en ligne." },
+  { number: "01", title: "Vous briefez", text: "Votre format, votre ambition, votre délai et votre budget en quelques minutes." },
+  { number: "02", title: "SILO sélectionne", text: "Nous identifions le créatif ou l'équipe réellement adaptés à votre projet." },
+  { number: "03", title: "Nous pilotons", text: "Un interlocuteur unique coordonne la production et sécurise chaque validation." },
+  { number: "04", title: "Vous diffusez", text: "Les fichiers sont livrés, validés et prêts pour vos canaux de communication." },
 ];
+
+const selectedWorks = realisations.slice(0, 3);
 
 export default function Home() {
   return (
     <PublicLayout>
-      {/* Hero */}
-      <section className="relative min-h-[88vh] flex items-center overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_hsl(var(--accent)/0.10),_transparent_55%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_hsl(var(--primary)/0.10),_transparent_55%)]" />
-        <div className="max-w-4xl mx-auto px-6 w-full text-center py-24 relative">
-          <p className="animate-fade-up text-xs uppercase tracking-[0.4em] text-accent-foreground bg-accent/90 inline-block px-3 py-1 rounded-full font-semibold mb-8">
-            Mise en relation audiovisuelle
-          </p>
-          {/* H1 éditorial — Playfair Display uniquement ici */}
-          <h1 className="animate-fade-up-delay-1 font-serif text-[clamp(2.4rem,7vw,5.5rem)] font-semibold leading-[1.1] mb-6">
-            Le bon créatif pour{" "}
-            <span className="italic text-primary">chaque</span>{" "}
-            projet vidéo.
-          </h1>
-          <p className="animate-fade-up-delay-2 text-lg text-muted-foreground leading-relaxed mb-10 max-w-2xl mx-auto">
-            Silo connecte les entreprises, artistes et particuliers avec les meilleures agences
-            et professionnels de l'audiovisuel — avec un conseiller dédié qui suit votre projet
-            de A à Z.
-          </p>
-          <div className="animate-fade-up-delay-3 flex flex-wrap gap-4 justify-center">
+      <div className="overflow-hidden bg-[#f2f0ea] text-[#0a1630] selection:bg-[#f3bd13] selection:text-[#0a1630]">
+        <section className="border-b border-[#0a1630]/20 px-4 sm:px-6 lg:px-10" aria-labelledby="hero-title">
+          <div className="mx-auto max-w-[1680px] border-x border-[#0a1630]/15">
+            <div className="flex items-center justify-between border-b border-[#0a1630]/15 px-4 py-4 text-[10px] font-semibold uppercase tracking-[0.22em] sm:px-8 sm:text-xs">
+              <span>Mise en relation audiovisuelle</span>
+              <span className="hidden items-center gap-2 sm:flex">
+                <span className="h-2 w-2 rounded-full bg-[#19a974]" aria-hidden="true" />
+                Professionnels sélectionnés
+              </span>
+              <span>France</span>
+            </div>
+
+            <div className="px-4 pb-12 pt-16 sm:px-8 sm:pb-16 sm:pt-20 lg:pb-20 lg:pt-24">
+              <h1
+                id="hero-title"
+                className="silo-display max-w-[13ch] font-serif text-[clamp(3.6rem,9.2vw,9.6rem)] font-semibold leading-[0.88] tracking-[-0.055em]"
+              >
+                <span className="silo-reveal block">Le bon créatif</span>
+                <span className="silo-reveal silo-reveal-delay block">pour <em className="font-serif text-[#2367e8]">chaque</em></span>
+                <span className="silo-reveal silo-reveal-delay-2 block">projet vidéo.</span>
+              </h1>
+            </div>
+
+            <div className="grid border-t border-[#0a1630]/15 md:grid-cols-[1fr_1fr]">
+              <div className="flex items-end border-b border-[#0a1630]/15 p-4 md:border-b-0 md:border-r md:p-8">
+                <p className="max-w-xl text-lg font-medium leading-snug sm:text-2xl lg:text-3xl">
+                  Une équipe choisie pour votre projet. Un chef de projet pour tenir le cap.
+                </p>
+              </div>
+              <div className="grid gap-8 p-4 sm:p-8 lg:grid-cols-[1fr_auto] lg:items-end">
+                <p className="max-w-lg text-sm leading-relaxed text-[#0a1630]/65 sm:text-base">
+                  SILO connecte entreprises, artistes et particuliers avec des professionnels
+                  audiovisuels vérifiés, du brief à la livraison.
+                </p>
+                <a
+                  href={TALLY_CLIENT_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group inline-flex min-h-14 items-center justify-between gap-8 rounded-full bg-[#0a1630] px-6 text-sm font-semibold text-white transition-colors hover:bg-[#2367e8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2367e8] focus-visible:ring-offset-2"
+                >
+                  Lancer un projet
+                  <ArrowUpRight className="h-5 w-5 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                </a>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <div className="border-b border-[#0a1630] bg-[#f3bd13] px-4 text-[#0a1630] sm:px-6 lg:px-10" aria-label="Services SILO">
+          <div className="mx-auto grid max-w-[1680px] grid-cols-2 border-x border-[#0a1630]/20 text-[10px] font-bold uppercase tracking-[0.16em] sm:grid-cols-4 sm:text-xs">
+            {["Film de marque", "Clip & live", "Événement", "Social content"].map((service) => (
+              <span key={service} className="border-b border-r border-[#0a1630]/20 px-4 py-4 last:border-r-0 sm:border-b-0 sm:px-6">
+                {service}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        <section id="expertises" className="bg-[#050b18] px-4 py-24 text-white sm:px-6 sm:py-32 lg:px-10">
+          <div className="mx-auto max-w-6xl text-center">
+            <p className="mb-8 text-xs font-semibold uppercase tracking-[0.3em] text-[#f3bd13]">01 · L’accompagnement SILO</p>
+            <h2 className="text-[clamp(3rem,6vw,6.5rem)] font-semibold leading-[0.92] tracking-[-0.055em]">
+              La bonne équipe.<br />Un seul interlocuteur.
+            </h2>
+            <p className="mx-auto mt-8 max-w-2xl text-base leading-relaxed text-white/65 sm:text-xl">
+              Nous sélectionnons les bons professionnels, cadrons la production et suivons chaque étape jusqu’à la livraison.
+            </p>
             <a
               href={TALLY_CLIENT_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="px-8 py-3.5 rounded-full bg-primary text-primary-foreground font-medium hover:bg-primary/90 transition-all shadow-lg shadow-primary/20"
+              className="mt-10 inline-flex min-h-12 items-center gap-3 rounded-full border border-white/50 px-6 text-sm font-semibold transition-colors hover:bg-white hover:text-[#050b18]"
             >
-              Créer un compte client
+              Nous confier un projet <ArrowUpRight className="h-4 w-4" />
             </a>
-            <a
-              href={TALLY_PARTNER_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-8 py-3.5 rounded-full border border-border text-foreground font-medium hover:bg-secondary transition-all flex items-center gap-2"
-            >
-              Devenir partenaire <ArrowRight className="w-4 h-4" />
-            </a>
-          </div>
-        </div>
-      </section>
 
-      {/* Piliers — Inter uniquement */}
-      <section className="border-y border-border bg-secondary/40">
-        <div className="max-w-7xl mx-auto px-6 py-20 grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {pillars.map((p) => (
-            <div key={p.title} className="rounded-2xl border border-border bg-card p-8 hover:border-primary/30 transition-all">
-              <p.icon className="w-9 h-9 text-primary mb-5" />
-              <h3 className="font-semibold text-lg mb-3">{p.title}</h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">{p.description}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Comment ça marche — Inter uniquement */}
-      <section className="max-w-7xl mx-auto px-6 py-24">
-        <div className="text-center mb-16">
-          <p className="text-xs uppercase tracking-[0.4em] text-primary font-medium mb-4">Comment ça marche</p>
-          <h2 className="text-3xl md:text-4xl font-semibold">Simple, encadré, efficace</h2>
-        </div>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {steps.map((step, i) => (
-            <div key={step.n} className="text-center relative">
-              {i < steps.length - 1 && <div className="hidden lg:block absolute top-6 left-3/4 w-1/2 h-px bg-border" />}
-              <div className="w-12 h-12 rounded-full bg-accent/15 border border-accent/40 flex items-center justify-center mx-auto mb-4">
-                <span className="text-xs font-bold text-primary">{step.n}</span>
-              </div>
-              <h3 className="font-semibold text-sm mb-1.5">{step.title}</h3>
-              <p className="text-xs text-muted-foreground leading-relaxed">{step.desc}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Portfolio teaser — Inter uniquement */}
-      <section className="border-y border-border bg-secondary/40">
-        <div className="max-w-5xl mx-auto px-6 py-20 grid md:grid-cols-2 gap-12 items-center">
-          <div>
-            <p className="text-xs uppercase tracking-[0.4em] text-primary font-medium mb-4">Nos partenaires</p>
-            <h2 className="text-2xl md:text-3xl font-semibold mb-4">Des créatifs vérifiés, un portfolio qui parle</h2>
-            <p className="text-muted-foreground leading-relaxed mb-8">
-              Clips, films de mariage, vidéos corporate, contenus réseaux sociaux : découvrez
-              les réalisations des agences et indépendants du réseau Silo.
-            </p>
-            <Link
-              href="/portfolio"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-all"
-            >
-              Voir le portfolio <ArrowRight className="w-4 h-4" />
-            </Link>
-          </div>
-          <div className="rounded-2xl border border-border bg-card p-8">
-            <Clapperboard className="w-8 h-8 text-primary mb-4" />
-            <ul className="space-y-3">
+            <div className="mt-20 grid border-t border-white/20 text-left sm:grid-cols-3">
               {[
-                "Clips artistes et vidéos musicales",
-                "Films de mariage et événementiel",
-                "Vidéos corporate et institutionnelles",
-                "Contenus courts pour réseaux sociaux",
-                "Captation drone, motion design, étalonnage",
-              ].map((s) => (
-                <li key={s} className="flex items-start gap-2.5 text-sm">
-                  <CheckCircle className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
-                  <span className="text-muted-foreground">{s}</span>
-                </li>
+                ["Sélection", "Des profils vérifiés selon le besoin."],
+                ["Pilotage", "Un chef de projet pour tenir le cap."],
+                ["Livraison", "Des validations claires jusqu’aux fichiers finaux."],
+              ].map(([title, text]) => (
+                <div key={title} className="border-b border-white/20 py-6 sm:border-b-0 sm:border-r sm:px-7 sm:first:pl-0 sm:last:border-r-0 sm:last:pr-0">
+                  <h3 className="text-lg font-semibold">{title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-white/55">{text}</p>
+                </div>
               ))}
-            </ul>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* CTA final — Inter uniquement */}
-      <section className="max-w-4xl mx-auto px-6 py-24 text-center">
-        <MessageSquare className="w-10 h-10 text-primary mx-auto mb-6" />
-        <h2 className="text-3xl md:text-4xl font-semibold mb-4">Un projet vidéo en tête&nbsp;?</h2>
-        <p className="text-muted-foreground mb-10 max-w-xl mx-auto">
-          Créez votre compte client et votre conseiller Silo vous recontacte pour cadrer votre
-          projet. Vous êtes une agence ou un indépendant&nbsp;? Rejoignez le réseau.
-        </p>
-        <div className="flex flex-wrap gap-4 justify-center">
-          <a
-            href={TALLY_CLIENT_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="px-8 py-4 rounded-full bg-primary text-primary-foreground font-medium hover:bg-primary/90 transition-all shadow-lg shadow-primary/20"
-          >
-            Créer un compte client
-          </a>
-          <a
-            href={TALLY_PARTNER_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="px-8 py-4 rounded-full border border-border font-medium hover:bg-secondary transition-all"
-          >
-            Devenir partenaire
-          </a>
-        </div>
-      </section>
+        <section id="methode" className="px-4 py-20 sm:px-6 sm:py-28 lg:px-10">
+          <div className="mx-auto max-w-[1680px]">
+            <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr]">
+              <div>
+                <p className="mb-8 text-xs font-semibold uppercase tracking-[0.3em] text-[#2367e8]">02 · La méthode</p>
+                <p className="max-w-sm text-xl font-medium leading-snug sm:text-2xl">
+                  Quatre étapes, un seul interlocuteur. Du premier brief au dernier export.
+                </p>
+              </div>
+              <div className="border-t border-[#0a1630]">
+                {steps.map((step) => (
+                  <div key={step.number} className="grid gap-4 border-b border-[#0a1630]/25 py-7 sm:grid-cols-[64px_0.8fr_1.2fr] sm:items-start sm:py-9">
+                    <span className="text-xs font-bold text-[#2367e8]">{step.number}</span>
+                    <h3 className="text-xl font-semibold tracking-tight sm:text-2xl">{step.title}</h3>
+                    <p className="max-w-xl text-sm leading-relaxed text-[#0a1630]/60 sm:text-base">{step.text}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="border-y border-[#0a1630]/20 bg-[#e8e4dc] px-4 py-20 sm:px-6 sm:py-28 lg:px-10" aria-labelledby="work-title">
+          <div className="mx-auto max-w-[1680px]">
+            <div className="mb-12 flex flex-col gap-8 sm:mb-16 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <p className="mb-5 text-xs font-semibold uppercase tracking-[0.3em] text-[#2367e8]">03 · Réalisations</p>
+                <h2 id="work-title" className="text-[clamp(2.8rem,6vw,6.5rem)] font-semibold leading-[0.9] tracking-[-0.055em]">
+                  Des réalisations<br />bien réelles.
+                </h2>
+              </div>
+              <div className="flex flex-col items-start gap-3 sm:items-end">
+                <p className="text-xs font-medium uppercase tracking-[0.18em] text-[#0a1630]/55">Réalisations · {REALISATEUR}</p>
+                <Link href="/portfolio" className="group inline-flex items-center gap-3 border-b border-[#0a1630] pb-1 text-sm font-semibold">
+                  Voir tout le portfolio
+                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                </Link>
+              </div>
+            </div>
+
+            <div className="grid gap-px overflow-hidden border border-[#0a1630]/25 bg-[#0a1630]/25 lg:grid-cols-3">
+              {selectedWorks.map((work, index) => (
+                <article key={work.id} className="group flex min-h-[330px] flex-col justify-between bg-[#e8e4dc] p-6 sm:min-h-[380px] sm:p-8">
+                  <div>
+                    <div className="mb-14 flex items-center justify-between text-[10px] font-bold uppercase tracking-[0.18em] text-[#0a1630]/50">
+                      <span>0{index + 1}</span>
+                      <span>{work.tags[0]}</span>
+                    </div>
+                    <h3 className="text-2xl font-semibold leading-tight tracking-[-0.035em] sm:text-3xl">{work.title}</h3>
+                    <p className="mt-4 text-sm text-[#0a1630]/55">{work.client}</p>
+                  </div>
+                  <a
+                    href={work.videoUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex w-fit items-center gap-3 border-b border-[#0a1630] pb-1 text-sm font-semibold transition-colors hover:text-[#2367e8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2367e8]"
+                  >
+                    Voir le film
+                    <Play className="h-4 w-4 fill-current" />
+                  </a>
+                </article>
+              ))}
+            </div>
+
+            <a href={PLAYLIST_URL} target="_blank" rel="noopener noreferrer" className="mt-6 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-[#0a1630]/60 hover:text-[#2367e8]">
+              Playlist complète sur YouTube <ArrowUpRight className="h-4 w-4" />
+            </a>
+          </div>
+        </section>
+
+        <section className="bg-[#2367e8] px-4 py-24 text-white sm:px-6 sm:py-32 lg:px-10">
+          <div className="mx-auto max-w-6xl text-center">
+            <p className="mb-7 text-xs font-semibold uppercase tracking-[0.3em] text-white/65">04 · On commence ?</p>
+            <h2 className="text-[clamp(3.2rem,7vw,7.4rem)] font-semibold leading-[0.9] tracking-[-0.06em]">
+              Parlons de votre prochain projet vidéo.
+            </h2>
+            <p className="mx-auto mt-7 max-w-2xl text-base leading-relaxed text-white/75 sm:text-lg">
+              Décrivez le projet. SILO organise la rencontre, le cadre et le suivi de production.
+            </p>
+            <div className="mx-auto mt-10 grid max-w-xl gap-3 sm:grid-cols-2">
+              <a href={TALLY_CLIENT_URL} target="_blank" rel="noopener noreferrer" className="group inline-flex min-h-14 items-center justify-between rounded-full bg-[#f3bd13] px-6 font-semibold text-[#0a1630] transition-transform hover:-translate-y-0.5">
+                Créer un compte <ArrowUpRight className="h-5 w-5" />
+              </a>
+              <a href={TALLY_PARTNER_URL} target="_blank" rel="noopener noreferrer" className="group inline-flex min-h-14 items-center justify-between rounded-full border border-white/45 px-6 font-semibold transition-colors hover:bg-white hover:text-[#2367e8]">
+                Rejoindre SILO <ArrowRight className="h-5 w-5" />
+              </a>
+            </div>
+            <p className="mt-5 inline-flex items-center gap-2 text-xs text-white/60">
+              <Check className="h-4 w-4" /> Réponse et cadrage personnalisés
+            </p>
+          </div>
+        </section>
+      </div>
     </PublicLayout>
   );
 }
