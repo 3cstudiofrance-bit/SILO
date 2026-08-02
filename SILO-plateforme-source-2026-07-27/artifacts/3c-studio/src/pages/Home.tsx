@@ -31,16 +31,6 @@ const featuredFilms = [
     video: "/media/groupe-kertrucks-david-leroyer.mp4",
     poster: "/media/groupe-kertrucks-david-leroyer.jpg",
   },
-  {
-    id: "tripa-gninnin",
-    category: "Clip musical",
-    title: "Paquinous feat. Observateur",
-    client: "Tripa Gninnin",
-    creator: "3C Studio",
-    creatorRole: "Production audiovisuelle",
-    video: "/media/tripa-gninnin-paquinous-observateur-3c-studio.mp4",
-    poster: "/media/tripa-gninnin-paquinous-observateur-3c-studio.jpg",
-  },
 ] as const;
 
 export default function Home() {
@@ -197,7 +187,7 @@ export default function Home() {
               </div>
               <div data-silo-reveal className="silo-scroll-reveal silo-scroll-reveal-delay-1 flex flex-col items-start gap-3 sm:items-end">
                 <p className="max-w-sm text-sm leading-relaxed text-[#0a1630]/60 sm:text-right sm:text-base">
-                  Trois projets réels, trois réponses créatives. Sélectionnez un film pour le découvrir.
+                  Deux projets réels, deux réponses créatives. Sélectionnez un film pour le découvrir.
                 </p>
                 <Link href="/portfolio" className="group inline-flex items-center gap-3 border-b border-[#0a1630] pb-1 text-sm font-semibold">
                   Voir tout le portfolio
@@ -244,7 +234,7 @@ export default function Home() {
               </div>
             </figure>
 
-            <div className="mt-5 grid gap-4 sm:grid-cols-3" aria-label="Choisir une réalisation">
+            <div className="mt-5 grid gap-4 sm:grid-cols-2" aria-label="Choisir une réalisation">
               {featuredFilms.map((film, index) => {
                 const isActive = film.id === activeFilm.id;
 
